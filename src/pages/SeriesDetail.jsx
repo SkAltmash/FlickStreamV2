@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import SeasonWithEpisodes from '../components/SeasonWithEpisodes';
 import Loader from '../components/Loader';
+import { Link } from 'react-router-dom';
+
 
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
@@ -105,6 +107,8 @@ const SeriesDetail = () => {
   {/* Mobile: horizontal scroll | Desktop: grid */}
   <div className="flex md:grid md:grid-cols-5 gap-4 overflow-x-auto md:overflow-visible scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 pb-2">
     {movie.credits?.cast?.slice(0, 10).map((cast) => (
+    <Link to={`/person/${cast.id}`} key={cast.id} className="min-w-[100px] md:min-w-0 flex-shrink-0 text-center">
+
       <div
         key={cast.id}
         className="min-w-[100px] md:min-w-0 flex-shrink-0 text-center"
@@ -125,6 +129,8 @@ const SeriesDetail = () => {
         <p className="text-sm font-medium text-gray-800 truncate">{cast.name}</p>
         <p className="text-xs text-gray-500 truncate">{cast.character}</p>
       </div>
+        </Link>
+
     ))}
   </div>
 </div>

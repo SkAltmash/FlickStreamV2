@@ -3,7 +3,10 @@ import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { Link } from 'react-router-dom';
 import Loader from '../components/Loader';
-
+import FavoriteButton from '../components/FavoriteButton';
+import WatchlistButton from '../components/WatchlistButton';
+import CommentSection from '../components/CommentSection';
+import { db } from '../firebase';
 
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
@@ -46,8 +49,10 @@ const MovieDetail = () => {
         {trailer ? (
           <iframe
             src={`https://www.youtube.com/embed/${trailer.key}`}
+            allow='autoplay; encrypted-media'
             title="Trailer"
             allowFullScreen
+            
             className="w-full h-full object-cover "
           ></iframe>
         ) : movie.backdrop_path ? (
@@ -62,7 +67,7 @@ const MovieDetail = () => {
           </div>
         )}
       </div>
-
+         
       {/* Movie Content */}
       <div className="max-w-5xl mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
@@ -77,9 +82,15 @@ const MovieDetail = () => {
 
             {/* Rating */}
             {movie.vote_average > 0 && (
+              <>
               <p className="text-yellow-500 font-semibold mb-2">
                 ★ {movie.vote_average.toFixed(1)} / 10
-              </p>
+                </p>
+                <div className='flex gap-5 w-full mb-2'>
+                <WatchlistButton movie={movie} />
+                <FavoriteButton movie={movie} />
+                </div>
+              </>
             )}
 
             {/* Genres */}
@@ -128,6 +139,8 @@ const MovieDetail = () => {
 ))}
 
   </div>
+<CommentSection mediaId={movie.id.toString()} />
+
 </div>
 
 

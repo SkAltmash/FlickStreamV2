@@ -36,17 +36,21 @@ const Navbar = () => {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex space-x-8 items-center">
-            <NavLink to="/" className={linkStyle}>Home</NavLink>
-            <NavLink to="/movies" className={linkStyle}>Movies</NavLink>
-            <NavLink to="/series" className={linkStyle}>Series</NavLink>
-            <NavLink to="/about" className={linkStyle}>About</NavLink>
+            <NavLink to="/" className={getLinkClass}>Home</NavLink>
+            <NavLink to="/movies" className={getLinkClass}>Movies</NavLink>
+            <NavLink to="/series" className={getLinkClass}>Series</NavLink>
+            <NavLink to="/about" className={getLinkClass}>About</NavLink>
 
             {user ? (
               <UserDropdown user={user} onLogout={handleLogout} />
             ) : (
               <div className="flex space-x-4">
-                <Link to="/login" className={linkStyle}>Login</Link>
-                <Link to="/signup" className={linkStyle}>Sign Up</Link>
+                <Link to="/login" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">
+                  Login
+                </Link>
+                <Link to="/signup" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">
+                  Sign Up
+                </Link>
               </div>
             )}
           </div>
@@ -68,7 +72,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Menu Backdrop */}
       <div
         className={`fixed top-0 left-0 h-full w-full z-20 bg-transparent backdrop-blur transition-opacity duration-300 ${
           isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
@@ -76,6 +80,7 @@ const Navbar = () => {
         onClick={toggleMenu}
       />
 
+      {/* Mobile Menu Drawer */}
       <div
         className={`fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-900 shadow-lg z-30 transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
@@ -83,27 +88,25 @@ const Navbar = () => {
       >
         <div className="flex flex-col h-full justify-between py-6 px-4">
           <div className="space-y-6">
-            <NavLink to="/" className={mobileLink} onClick={toggleMenu}>Home</NavLink>
-            <NavLink to="/movies" className={mobileLink} onClick={toggleMenu}>Movies</NavLink>
-            <NavLink to="/series" className={mobileLink} onClick={toggleMenu}>Series</NavLink>
-            <NavLink to="/about" className={mobileLink} onClick={toggleMenu}>About</NavLink>
+            <NavLink to="/" className={mobileLinkClass} onClick={toggleMenu}>Home</NavLink>
+            <NavLink to="/movies" className={mobileLinkClass} onClick={toggleMenu}>Movies</NavLink>
+            <NavLink to="/series" className={mobileLinkClass} onClick={toggleMenu}>Series</NavLink>
+            <NavLink to="/about" className={mobileLinkClass} onClick={toggleMenu}>About</NavLink>
 
             {user && (
-              <>
-                <div className="border-t border-gray-300 dark:border-gray-700 pt-4 mt-4 space-y-3">
-                  <Link to="/profile" className={mobileLink} onClick={toggleMenu}>Profile</Link>
-                  <Link to="/favorites" className={mobileLink} onClick={toggleMenu}>Favorites</Link>
-                  <Link to="/watchlist" className={mobileLink} onClick={toggleMenu}>Watchlist</Link>
-                  <Link to="/history" className={mobileLink} onClick={toggleMenu}>History</Link>
-                  <Link to="/my-comments" className={mobileLink} onClick={toggleMenu}>My Comments</Link>
-                </div>
-              </>
+              <div className="border-t border-gray-300 dark:border-gray-700 pt-4 mt-4 space-y-3">
+                <Link to="/profile" className={mobileLinkClass} onClick={toggleMenu}>Profile</Link>
+                <Link to="/favorites" className={mobileLinkClass} onClick={toggleMenu}>Favorites</Link>
+                <Link to="/watchlist" className={mobileLinkClass} onClick={toggleMenu}>Watchlist</Link>
+                <Link to="/history" className={mobileLinkClass} onClick={toggleMenu}>History</Link>
+                <Link to="/my-comments" className={mobileLinkClass} onClick={toggleMenu}>My Comments</Link>
+              </div>
             )}
 
             {!user && (
               <div className="space-y-3 border-t border-gray-300 dark:border-gray-700 pt-4 mt-4">
-                <Link to="/login" className={mobileLink} onClick={toggleMenu}>Login</Link>
-                <Link to="/signup" className={mobileLink} onClick={toggleMenu}>Sign Up</Link>
+                <Link to="/login" className={mobileLinkClass} onClick={toggleMenu}>Login</Link>
+                <Link to="/signup" className={mobileLinkClass} onClick={toggleMenu}>Sign Up</Link>
               </div>
             )}
           </div>
@@ -114,7 +117,7 @@ const Navbar = () => {
                 handleLogout();
                 toggleMenu();
               }}
-              className="text-red-600 hover:text-red-700 text-left"
+              className="text-red-600 text-2xl hover:text-red-700 text-left"
             >
               Logout
             </button>
@@ -129,12 +132,13 @@ const Navbar = () => {
   );
 };
 
-// Styles
-const linkStyle = ({ isActive }) =>
+// Styles for NavLink
+const getLinkClass = ({ isActive }) =>
   `text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium ${
     isActive ? 'underline text-blue-600 dark:text-blue-400 font-bold' : ''
   }`;
 
-const mobileLink = `block text-gray-700 dark:text-gray-300 text-base font-medium hover:text-blue-600 dark:hover:text-blue-400`;
+// Style for mobile links
+const mobileLinkClass = `block text-gray-700 dark:text-gray-300 text-base font-medium hover:text-blue-600 dark:hover:text-blue-400`;
 
 export default Navbar;

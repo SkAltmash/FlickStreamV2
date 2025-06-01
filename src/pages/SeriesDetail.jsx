@@ -4,6 +4,11 @@ import MovieCard from '../components/MovieCard';
 import SeasonWithEpisodes from '../components/SeasonWithEpisodes';
 import Loader from '../components/Loader';
 import { Link } from 'react-router-dom';
+import FavoriteButton from '../components/FavoriteButton';
+import WatchlistButton from '../components/WatchlistButton';
+import CommentSection from '../components/CommentSection';
+
+import { db } from '../firebase';
 
 
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
@@ -78,9 +83,15 @@ const SeriesDetail = () => {
 
             {/* Rating */}
             {movie.vote_average > 0 && (
+              <>
               <p className="text-yellow-500 font-semibold mb-2">
                 ★ {movie.vote_average.toFixed(1)} / 10
               </p>
+              <div className='flex gap-5 w-full mb-2'>
+                <WatchlistButton movie={movie} />
+                <FavoriteButton movie={movie} />
+                </div>
+              </>
             )}
 
             {/* Genres */}
@@ -134,6 +145,7 @@ const SeriesDetail = () => {
     ))}
   </div>
 </div>
+<CommentSection mediaId={movie.id.toString()} />
 
  {/* TV show detail page */}
 <div className="max-w-6xl mx-auto px-4 mt-10">

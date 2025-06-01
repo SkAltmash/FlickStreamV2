@@ -11,7 +11,7 @@ const getRatingColor = (rating) => {
 const SearchResultCard = ({ item }) => {
   const navigate = useNavigate();
   const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
-  const imagePath = item.poster_path || item.profile_path;
+  const imagePath = item.poster_path || item.profile_path||item.poster;
 
   const handleClick = () => {
     if (item.type === 'cast') navigate(`/person/${item.id}`);

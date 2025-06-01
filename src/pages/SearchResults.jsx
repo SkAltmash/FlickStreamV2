@@ -62,7 +62,7 @@ function SearchResults() {
       ) : results.length === 0 ? (
         <p>No results found.</p>
       ) : (
-      <div className="flex flex-wrap gap-4 justify-center sm:gap-2">
+      <div className="flex flex-wrap gap-2 justify-center sm:gap-4">
           {results.map(item => (
             <SearchResultCard key={`${item.type}-${item.id}`} item={item} />
           ))}

@@ -28,7 +28,7 @@ const Movies = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Now Playing Movies</h1>
-      <div className="flex flex-wrap gap-4 justify-center">
+      <div className="flex flex-wrap gap-3 justify-center">
         {movies.map((movie) => (
           <MovieCard key={movie.id} movie={movie} />
         ))}

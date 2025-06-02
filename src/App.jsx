@@ -22,6 +22,8 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import FavoritesPage from './pages/FavoritesPage';
 import WatchlistPage from './pages/WatchlistPage';
+import ProfileSetup from './pages/ProfileSetup';
+import Profile from './pages/ Profile';
 const App = () => {
   const [user, setUser] = useState(null);
   const isFirstRender = useRef(true); // 🔐 This skips the first effect run
@@ -63,7 +65,10 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/watchlist" element={<WatchlistPage />} />
+        <Route path="/profile-setup" element={<ProfileSetup />} />
+        <Route path="/profile" element={<Profile/>} />
 
+   
       </Routes>
 
       <Footer />

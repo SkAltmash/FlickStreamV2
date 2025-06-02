@@ -7,7 +7,8 @@ import { Link } from 'react-router-dom';
 import FavoriteButton from '../components/FavoriteButton';
 import WatchlistButton from '../components/WatchlistButton';
 import CommentSection from '../components/CommentSection';
-
+import ShareModal from '../components/ShareModal';
+import { FaShare } from 'react-icons/fa';
 import { db } from '../firebase';
 
 
@@ -17,6 +18,8 @@ const SeriesDetail = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showShare, setShowShare] = useState(false);
+  
 
   useEffect(() => {
     async function fetchMovie() {
@@ -91,7 +94,15 @@ const SeriesDetail = () => {
               <div className='flex gap-5 w-full mb-2'>
                 <WatchlistButton movie={movie} />
                 <FavoriteButton movie={movie} />
+                <button onClick={() => setShowShare(true)} className="flex items-center gap-2  text-black px-4 py-2 rounded hover:bg-gray-500">
+                 <FaShare />
+                 </button>
+
                 </div>
+              
+
+              {/* Share Modal */}
+             <ShareModal isOpen={showShare} onClose={() => setShowShare(false)} movie={movie} />
               </>
             )}
 

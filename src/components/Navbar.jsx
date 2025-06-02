@@ -99,7 +99,6 @@ const Navbar = () => {
                 <Link to="/favorites" className={mobileLinkClass} onClick={toggleMenu}>Favorites</Link>
                 <Link to="/watchlist" className={mobileLinkClass} onClick={toggleMenu}>Watchlist</Link>
                 <Link to="/history" className={mobileLinkClass} onClick={toggleMenu}>History</Link>
-                <Link to="/my-comments" className={mobileLinkClass} onClick={toggleMenu}>My Comments</Link>
               </div>
             )}
 

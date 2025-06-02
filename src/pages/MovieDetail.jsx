@@ -6,6 +6,7 @@ import Loader from '../components/Loader';
 import FavoriteButton from '../components/FavoriteButton';
 import WatchlistButton from '../components/WatchlistButton';
 import CommentSection from '../components/CommentSection';
+
 import { db } from '../firebase';
 
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
@@ -42,31 +43,30 @@ const MovieDetail = () => {
 
   return (
     <>
-    <div className="bg-white text-black min-h-screen py-6 flex flex-col  items-center mt-4">
-      {/* Video or Backdrop with Effect */}
-      <div className="relative flex items-center w-full max-w-[600px] aspect-video rounded-md overflow-hidden shadow-md mb-8">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/50 z-10" />
-        {trailer ? (
-          <iframe
-            src={`https://www.youtube.com/embed/${trailer.key}`}
-            allow='autoplay; encrypted-media'
-            title="Trailer"
-            allowFullScreen
-            
-            className="w-full h-full object-cover "
-          ></iframe>
-        ) : movie.backdrop_path ? (
-          <img
-            src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
-            alt="Backdrop"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 z-20 relative">
-            No trailer or backdrop available
-          </div>
-        )}
+   <div className="bg-white text-black min-h-screen py-6 flex flex-col items-center mt-4">
+        {/* Video or Backdrop with Effect */}
+      <div className="relative w-full max-w-[600px] aspect-video rounded-md overflow-hidden shadow-md mb-8">
+    <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/50 pointer-events-none" />
+    {trailer ? (
+      <iframe
+        src={`https://www.youtube.com/embed/${trailer.key}`}
+        title="Trailer"
+        allowFullScreen
+        className="w-full h-full border-0"
+        frameBorder="0"
+      />
+    ) : movie.backdrop_path ? (
+      <img
+        src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+        alt="Backdrop"
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 relative">
+        No trailer or backdrop available
       </div>
+    )}
+  </div>
          
       {/* Movie Content */}
       <div className="max-w-5xl mx-auto px-4">
@@ -113,8 +113,8 @@ const MovieDetail = () => {
 
 
      {/* Cast Section */}
-<div className="w-full px-4 py-6">
-  <h2 className="text-2xl font-semibold mb-4">Top Cast</h2>
+<div className=" px-4 py-6 w-screen ">
+  <h2 className="text-2xl font-semibold mb-4 px-4">Top Cast</h2>
 
   {/* Mobile: horizontal scroll | Desktop: grid */}
     <div className="flex md:grid md:grid-cols-5 gap-4 overflow-x-auto md:overflow-visible scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 pb-2">
@@ -139,18 +139,14 @@ const MovieDetail = () => {
 ))}
 
   </div>
-<CommentSection mediaId={movie.id.toString()} />
 
 </div>
 
-
-
-
-
-
+</div>
+<CommentSection mediaId={movie.id.toString()} />
 
 {/* Similar Movies Section */}
-<div className="max-w-5xl mx-auto mt-10 px-4">
+<div className=" mx-auto mt-10 px-4">
   <h2 className="text-2xl font-semibold mb-4">Similar Movies</h2>
   {movie.similar?.results?.length > 0 ? (
     <div className="flex flex-wrap gap-4 justify-center">
@@ -162,8 +158,6 @@ const MovieDetail = () => {
     <p className="text-gray-600">No similar movies found.</p>
   )}
 </div>
-    </div>
-
 </>
 
      

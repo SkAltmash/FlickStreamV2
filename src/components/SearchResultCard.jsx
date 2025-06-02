@@ -25,7 +25,7 @@ const SearchResultCard = ({ item }) => {
       onClick={handleClick}
     >
       {imagePath ? (
-          <div w-full h-38>
+          <div className='w-full'>
           <LazyLoadImage
           src={`${imageBaseUrl}${imagePath}`}
           alt={item.title || item.name}

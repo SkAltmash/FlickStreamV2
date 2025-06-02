@@ -45,29 +45,30 @@ const SeriesDetail = () => {
 
   return (
     <>
-    <div className="bg-white text-black min-h-screen py-6 flex flex-col  items-center mt-4">
-      {/* Video or Backdrop with Effect */}
-      <div className="relative flex items-center w-full max-w-[600px] aspect-video rounded-md overflow-hidden shadow-md mb-8">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/50" />
-        {trailer ? (
-          <iframe
-            src={`https://www.youtube.com/embed/${trailer.key}`}
-            title="Trailer"
-            allowFullScreen
-            className="w-full h-full object-cover "
-          ></iframe>
-        ) : movie.backdrop_path ? (
-          <img
-            src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
-            alt="Backdrop"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600  relative">
-            No trailer or backdrop available
-          </div>
-        )}
+   <div className="bg-white text-black min-h-screen py-6 flex flex-col items-center mt-4">
+        {/* Video or Backdrop with Effect */}
+      <div className="relative w-full max-w-[600px] aspect-video rounded-md overflow-hidden shadow-md mb-8">
+    <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/50 pointer-events-none" />
+    {trailer ? (
+      <iframe
+        src={`https://www.youtube.com/embed/${trailer.key}`}
+        title="Trailer"
+        allowFullScreen
+        className="w-full h-full border-0"
+        frameBorder="0"
+      />
+    ) : movie.backdrop_path ? (
+      <img
+        src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+        alt="Backdrop"
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 relative">
+        No trailer or backdrop available
       </div>
+    )}
+  </div>
       {/* Movie Content */}
       <div className="max-w-5xl mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
@@ -112,7 +113,7 @@ const SeriesDetail = () => {
         </div>
       </div>
     {/* Cast Section */}
-<div className="w-full px-4">
+<div className="mt-3 px-4 mx-auto">
   <h2 className="text-2xl font-semibold mb-4">Top Cast</h2>
 
   {/* Mobile: horizontal scroll | Desktop: grid */}
@@ -145,8 +146,6 @@ const SeriesDetail = () => {
     ))}
   </div>
 </div>
-<CommentSection mediaId={movie.id.toString()} />
-
  {/* TV show detail page */}
 <div className="max-w-6xl mx-auto px-4 mt-10">
   <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Seasons</h2>
@@ -156,11 +155,11 @@ const SeriesDetail = () => {
 </div>
 
 
-
-
+</div>
+<CommentSection mediaId={movie.id.toString()} />
 
 {/* Similar Movies Section */}
-<div className="max-w-5xl mx-auto mt-10 px-4">
+<div className=" mx-auto mt-10 px-4">
   <h2 className="text-2xl font-semibold mb-4">Similar Movies</h2>
   {movie.similar?.results?.length > 0 ? (
     <div className="flex flex-wrap gap-4 justify-center">
@@ -172,8 +171,6 @@ const SeriesDetail = () => {
     <p className="text-gray-600">No similar movies found.</p>
   )}
 </div>
-
-    </div>
 </>
 
      

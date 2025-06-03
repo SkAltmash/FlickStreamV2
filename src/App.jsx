@@ -71,7 +71,7 @@ const App = () => {
         <Route path="/chat" element={<FlickChat />} />
       </Routes>
 
-      <Footer />
+      {location.pathname !== '/chat' && <Footer user={user} />}
     </>
   );
 };

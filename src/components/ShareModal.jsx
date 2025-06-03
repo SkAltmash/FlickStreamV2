@@ -1,7 +1,7 @@
 import React from 'react';
 import {  toast } from 'react-toastify';
-
-const ShareModal = ({ isOpen, onClose, movie }) => {
+let type ="movie"
+const ShareModal = ({ isOpen, onClose, movie}) => {
   if (!isOpen) return null;
 
   const currentUrl = window.location.href;
@@ -35,13 +35,12 @@ const ShareModal = ({ isOpen, onClose, movie }) => {
           >
             Telegram
           </a>
-           <a href="/chat"
-           target="_blank"
-            rel="noopener noreferrer"
-            className="bg-gray-950  px-4 py-2 rounded text-center font-bold text-blue-600 dark:text-blue-400"
+          <a href={`/chat?shareId=${movie.id}&type=${type}`}
+           className="bg-gray-950 px-4 py-2 rounded text-center font-bold text-blue-600 dark:text-blue-400"
            >
-            Flick<spam className="text-red-600">C</spam>hat
+          Flick<spam className="text-red-600">C</spam>hat
            </a>
+
           <button
             onClick={handleCopy}
             className="bg-gray-600 text-white px-4 py-2 rounded"

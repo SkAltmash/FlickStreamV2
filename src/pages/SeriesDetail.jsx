@@ -102,7 +102,7 @@ const SeriesDetail = () => {
               
 
               {/* Share Modal */}
-             <ShareModal isOpen={showShare} onClose={() => setShowShare(false)} movie={movie} />
+             <ShareModal isOpen={showShare} onClose={() => setShowShare(false)} movie={movie}/>
               </>
             )}
 

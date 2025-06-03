@@ -124,7 +124,7 @@ const SeriesDetail = () => {
         </div>
       </div>
     {/* Cast Section */}
-<div className="mt-3 px-4 mx-auto">
+<div className="mt-3 px-4 mx-auto w-screen">
   <h2 className="text-2xl font-semibold mb-4">Top Cast</h2>
 
   {/* Mobile: horizontal scroll | Desktop: grid */}

@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";  // <-- import useLocation
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
-
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,14 +22,15 @@ import Login from './pages/Login';
 import FavoritesPage from './pages/FavoritesPage';
 import WatchlistPage from './pages/WatchlistPage';
 import ProfileSetup from './pages/ProfileSetup';
+import FlickChat from './pages/FlickChat';
 import Profile from './pages/ Profile';
 const App = () => {
   const [user, setUser] = useState(null);
-  const isFirstRender = useRef(true); // 🔐 This skips the first effect run
+  const isFirstRender = useRef(true);
+  const location = useLocation();  // get current path
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      // ✅ Skip toast on first render
       if (!isFirstRender.current) {
         if (currentUser && !user) {
           toast.success(`Welcome, ${currentUser.email}`);
@@ -49,7 +49,8 @@ const App = () => {
 
   return (
     <>
-      <Navbar user={user} />
+      {location.pathname !== '/chat' && <Navbar user={user} />}
+
       <ToastContainer position="top-center" autoClose={2000} />
 
       <Routes>
@@ -66,9 +67,8 @@ const App = () => {
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/watchlist" element={<WatchlistPage />} />
         <Route path="/profile-setup" element={<ProfileSetup />} />
-        <Route path="/profile" element={<Profile/>} />
-
-   
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/chat" element={<FlickChat />} />
       </Routes>
 
       <Footer />

@@ -124,7 +124,7 @@ const MovieDetail = () => {
 
 
      {/* Cast Section */}
-<div className=" px-4 py-6 w-screen ">
+<div className=" px-4 py-6 w-screen">
   <h2 className="text-2xl font-semibold mb-4 px-4">Top Cast</h2>
 
   {/* Mobile: horizontal scroll | Desktop: grid */}

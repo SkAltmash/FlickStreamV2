@@ -64,7 +64,7 @@ const SeasonWithEpisodes = ({ tvId, season }) => {
               <ul className="space-y-6">
                 {episodes.slice(0, visibleCount).map((ep) => (
                   <li key={ep.id} className="flex flex-col sm:flex-row gap-4 border-t pt-4">
-                    <div className="w-full sm:w- h-50 rounded overflow-hidden bg-gray-200 flex-shrink-0">
+                    <div className="w-full sm:w-80 h-50 rounded overflow-hidden bg-gray-200 flex-shrink-0">
                       {ep.still_path ? (
                         <img
                           src={`https://image.tmdb.org/t/p/w500${ep.still_path}`}

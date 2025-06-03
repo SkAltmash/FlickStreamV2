@@ -31,16 +31,16 @@ const ShareModal = ({ isOpen, onClose, movie }) => {
             href={`https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(movie.title || movie.name)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-blue-500 text-white px-4 py-2 rounded text-center"
+            className="bg-blue-500 text-white px-4 py-2 rounded text-center "
           >
             Telegram
           </a>
-           <a href=""
+           <a href="/chat"
            target="_blank"
             rel="noopener noreferrer"
-            className="bg-gray-950 text-white px-4 py-2 rounded text-center"
+            className="bg-gray-950  px-4 py-2 rounded text-center font-bold text-blue-600 dark:text-blue-400"
            >
-            FlickStreamV2 Messenger
+            Flick<spam className="text-red-600">C</spam>hat
            </a>
           <button
             onClick={handleCopy}

@@ -24,10 +24,13 @@ const Navbar = () => {
       console.error('Logout error:', error);
     }
   };
-
+  const hideSearchBarRoutes = ["/login", "/signup", "/profile", "/profile-setup","/chat"];
+  const shouldHideSearchBar = hideSearchBarRoutes.some(route =>
+  location.pathname.startsWith(route)
+  );
   return (
     <>
-      <nav className="bg-white dark:bg-gray-900 shadow-md fixed w-full z-30 top-0 left-0">
+    <nav className="bg-white dark:bg-gray-900 shadow-md fixed w-full z-30 top-0 left-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
@@ -124,9 +127,11 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Push content down from navbar */}
+     {/* Push content down from navbar */}
       <div className="h-16" />
-      <SearchBar />
+
+      {/* Conditionally show SearchBar */}
+      {!shouldHideSearchBar && <SearchBar />}
     </>
   );
 };

@@ -4,7 +4,6 @@ import SearchBar from '../components/SearchBar';
 const Home = () => {
   return (
   <>
-    
     <div className="p-4">
       <MediaSection
         title="Now Playing Movies"

@@ -236,7 +236,7 @@ const FlickChat = () => {
 
       <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
-        <aside className={`md:w-1/3 w-full ${selectedUser ? 'hidden md:block' : 'block'} bg-gray-100 px-3 py-4 border-r overflow-y-auto`}>
+        <aside className={`md:w-1/3 w-full h-screen ${selectedUser ? 'hidden md:block' : 'block'} bg-gray-100 px-3 py-4 border-r overflow-y-auto`}>
           <h2 className="text-xl font-bold mb-4">Chats</h2>
           <input
             type="text"

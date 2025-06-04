@@ -18,6 +18,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
+
+
 const FlickChat = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -69,6 +71,31 @@ const FlickChat = () => {
       fetchUsers();
     }
   }, [currentUser]);
+  useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+
+      const updateLastSeen = () => {
+        updateDoc(userRef, {
+          lastSeen: serverTimestamp(),
+        });
+      };
+
+      updateLastSeen(); // Initial
+      const interval = setInterval(updateLastSeen, 60 * 1000); // Every 1 min
+
+      window.addEventListener('focus', updateLastSeen); // Also on tab focus
+
+      return () => {
+        clearInterval(interval);
+        window.removeEventListener('focus', updateLastSeen);
+      };
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
 
   useEffect(() => {
     if (!selectedUser || !currentUser) return;
@@ -104,13 +131,13 @@ const FlickChat = () => {
 
         // Prepare share message text
         const shareUrl = `${window.location.origin}/${type}/${shareId}`;
-        const text = `🎬 Check this ${type === 'movie' ? 'movie' : 'series'}: ${shareUrl}`;
+        const text = ` Check this ${type === 'movie' ? 'movie' : 'series'}: ${shareUrl}`;
 
         setSharedMovieInfo({ to, text, sentKey, shareId, type });
       
     }
   }, [location.search, currentUser, users]);
-
+ 
   useEffect(() => {
     if (
       sharedMovieInfo &&
@@ -213,6 +240,13 @@ const FlickChat = () => {
       console.error('Failed to delete message:', error);
     }
   };
+  const getUserStatus = (lastSeen) => {
+  if (!lastSeen) return 'Offline';
+  const seenTime = lastSeen.toDate();
+  const diff = new Date() - seenTime;
+  if (diff < 2 * 60 * 1000) return '🟢 Online';
+  return `Last seen ${formatDistanceToNow(seenTime, { addSuffix: true })}`;
+};
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -254,35 +288,45 @@ const FlickChat = () => {
           {users.length === 0 ? (
             <p className="text-sm">No other users available.</p>
           ) : (
-            <ul className="space-y-2">
-              {selectedUser && (
-                <li
-                  key={selectedUser.uid}
-                  className="p-3 rounded cursor-pointer bg-blue-200 text-sm"
-                  onClick={() => setSelectedUser(selectedUser)}
-                >
-                  {selectedUser.username}
-                </li>
-              )}
-              {users
-                .filter(
-                  (user) =>
-                    user.uid !== selectedUser?.uid &&
-                    user.username.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((user) => (
-                  <li
-                    key={user.uid}
-                    className="p-3 rounded cursor-pointer hover:bg-blue-100 text-sm"
-                    onClick={() => setSelectedUser(user)}
-                  >
-                    <div className="flex gap-1 items-center space-y-1">
-                      <img src={user.photoURL} className="w-10 h-10 rounded-full" alt={user.username} />
-                      {user.username}
-                    </div>
-                  </li>
-                ))}
-            </ul>
+          <ul className="space-y-2">
+  {selectedUser && (
+    <li
+      key={selectedUser.uid}
+      className="p-3 rounded cursor-pointer bg-blue-200 text-sm"
+      onClick={() => setSelectedUser(selectedUser)}
+    >
+      {selectedUser.username}
+    </li>
+  )}
+  {users
+    .filter(
+      (user) =>
+        user.uid !== selectedUser?.uid &&
+        user.username.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .map((user) => (
+      <li
+        key={user.uid}
+        className="p-3 rounded cursor-pointer hover:bg-blue-100 text-sm"
+        onClick={() => setSelectedUser(user)}
+      >
+        <div className="flex items-center gap-3">
+          <img
+            src={user.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y'}
+            alt={user.username}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <div className="flex flex-col">
+            <span className="font-medium text-gray-800 dark:text-gray-900">{user.username}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {getUserStatus(user.lastSeen)}
+            </span>
+          </div>
+        </div>
+      </li>
+    ))}
+</ul>
+
           )}
         </aside>
 
@@ -333,7 +377,7 @@ const FlickChat = () => {
                 <div
                   className={`relative p-3 rounded-lg text-sm break-words ${
                     msg.sender === currentUser?.uid
-                      ? 'bg-gradient-to-r from-gray-500 to-pink-400 text-black'
+                      ? 'bg-gradient-to-r from-gray-500 to-pink-400 text-black '
                       : 'bg-gray-200 bg-gradient-to-r from-orange-400 to-pink-950 text-white'
                   }`}
                 >
@@ -342,20 +386,24 @@ const FlickChat = () => {
                   {msg.deleted ? (
                     <div className="italic text-gray-900">This message was deleted</div>
                   ) : (
-                    <div>
+                    <div className='w-65'>
                       {/* Render message text with clickable links */}
                       {renderMessageText(msg.text)}
-
                       {/* If message has shared info, show "Watch Now" button */}
                       {msg.shared && (
+                        <>
+                      <div className='bg-gray-200 w-full h-60'>
+                       <img src={msg.shared.posterUrl} alt="" className='w-full h-full object-cover'/>
+                      </div>
                         <button
                           onClick={() =>
                             navigate(`/${msg.shared.type}/${msg.shared.shareId}`)
                           }
-                          className="mt-1 inline-block text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                          className="p-2 mt-1 inline-block text-xs bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-900"
                         >
-                          ▶ Watch Now
+                         Watch Now
                         </button>
+                        </>
                       )}
                     </div>
                   )}

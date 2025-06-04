@@ -49,11 +49,11 @@ const ShareModal = ({ isOpen, onClose, movie }) => {
   const handleFlickChatShare = async (user) => {
     if (!currentUserId || !user?.uid) return;
 
-    const shareUrl = `${window.location.origin}/${type}/${movie.id}`;
-    const text = `🎬 Check this ${type === 'movie' ? 'movie' : 'series'}: ${shareUrl}`;
+    const shareUrl = `${window.location.origin}/details/${type}/${movie.id}`;
+    const text = ` Check this ${type === 'movie' ? 'movie' : 'series'}:  ${movie.name||movie.title}`;
     const chatId = [currentUserId, user.uid].sort().join('_');
     const messageRef = collection(db, 'chats', chatId, 'messages');
-
+    
     await setDoc(
       doc(db, 'chats', chatId),
       {
@@ -64,6 +64,7 @@ const ShareModal = ({ isOpen, onClose, movie }) => {
 
     await addDoc(messageRef, {
       sender: currentUserId,
+      avatar: user.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y',
       text,
       timestamp: serverTimestamp(),
       shared: {

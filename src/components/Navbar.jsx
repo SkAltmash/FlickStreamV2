@@ -43,8 +43,9 @@ const Navbar = () => {
             <NavLink to="/movies" className={getLinkClass}>Movies</NavLink>
             <NavLink to="/series" className={getLinkClass}>Series</NavLink>
             <NavLink to="/about" className={getLinkClass}>About</NavLink>
+            <Link to="/chat" className={mobileLinkClass} onClick={toggleMenu}><span className="text-pink-500">FlickChat</span></Link>
 
-            {user ? (
+           {user ? (
               <UserDropdown user={user} onLogout={handleLogout} />
             ) : (
               <div className="flex space-x-4">
@@ -98,8 +99,9 @@ const Navbar = () => {
 
             {user && (
               <div className="border-t border-gray-300 dark:border-gray-700 pt-4 mt-4 space-y-3">
-                <Link to="/profile" className={mobileLinkClass} onClick={toggleMenu}>Profile</Link>
-                <Link to="/favorites" className={mobileLinkClass} onClick={toggleMenu}>Favorites</Link>
+              <Link to="/chat" className={mobileLinkClass} onClick={toggleMenu}><span className="text-pink-500">FlickChat</span></Link>
+               <Link to="/profile" className={mobileLinkClass} onClick={toggleMenu}>Profile</Link>
+                 <Link to="/favorites" className={mobileLinkClass} onClick={toggleMenu}>Favorites</Link>
                 <Link to="/watchlist" className={mobileLinkClass} onClick={toggleMenu}>Watchlist</Link>
                 <Link to="/history" className={mobileLinkClass} onClick={toggleMenu}>History</Link>
               </div>

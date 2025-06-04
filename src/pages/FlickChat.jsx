@@ -1,3 +1,4 @@
+// FlickChat.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { db, auth } from '../firebase';
 import {
@@ -16,9 +17,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { formatDistanceToNow } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-
-
+import { faPaperPlane ,faArrowLeft} from '@fortawesome/free-solid-svg-icons';
 
 const FlickChat = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -28,7 +27,7 @@ const FlickChat = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleteId, setShowDeleteId] = useState(null);
-  const [toast, setToast] = useState(null); // For success notification
+  const [toast, setToast] = useState(null);
   const [sharedMovieInfo, setSharedMovieInfo] = useState(null);
   const messagesEndRef = useRef(null);
   const location = useLocation();
@@ -44,6 +43,7 @@ const FlickChat = () => {
             username: user.displayName || 'Anonymous',
             photoURL: user.photoURL || null,
             createdAt: serverTimestamp(),
+            readBy: [],
           },
           { merge: true }
         );
@@ -71,43 +71,36 @@ const FlickChat = () => {
       fetchUsers();
     }
   }, [currentUser]);
+
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const userRef = doc(db, 'users', user.uid);
-
-      const updateLastSeen = () => {
-        updateDoc(userRef, {
-          lastSeen: serverTimestamp(),
-        });
-      };
-
-      updateLastSeen(); // Initial
-      const interval = setInterval(updateLastSeen, 60 * 1000); // Every 1 min
-
-      window.addEventListener('focus', updateLastSeen); // Also on tab focus
-
-      return () => {
-        clearInterval(interval);
-        window.removeEventListener('focus', updateLastSeen);
-      };
-    }
-  });
-
-  return () => unsubscribe();
-}, []);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        const updateLastSeen = () => {
+          updateDoc(userRef, {
+            lastSeen: serverTimestamp(),
+          });
+        };
+        updateLastSeen();
+        const interval = setInterval(updateLastSeen, 60000);
+        window.addEventListener('focus', updateLastSeen);
+        return () => {
+          clearInterval(interval);
+          window.removeEventListener('focus', updateLastSeen);
+        };
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (!selectedUser || !currentUser) return;
-
     const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
     const messagesRef = collection(db, 'chats', chatId, 'messages');
     const q = query(messagesRef, orderBy('timestamp'));
-
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setMessages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
-
     return unsubscribe;
   }, [selectedUser, currentUser]);
 
@@ -115,41 +108,32 @@ const FlickChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Parse share params on mount
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const shareId = params.get('shareId');
     const type = params.get('type');
     const to = params.get('to');
-
     if (shareId && type && to && currentUser) {
-      // Check if message already sent for this share (prevent re-send)
       const sentKey = `sharedMessageSent_${shareId}_${to}`;
-        // Auto-select user
-        const findUser = users.find(u => u.uid === to);
-        if (findUser) setSelectedUser(findUser);
-
-        // Prepare share message text
-        const shareUrl = `${window.location.origin}/${type}/${shareId}`;
-        const text = ` Check this ${type === 'movie' ? 'movie' : 'series'}: ${shareUrl}`;
-
-        setSharedMovieInfo({ to, text, sentKey, shareId, type });
-      
+      const findUser = users.find(u => u.uid === to);
+      if (findUser) setSelectedUser(findUser);
+      const shareUrl = `${window.location.origin}/${type}/${shareId}`;
+      const text = `Check this ${type === 'movie' ? 'movie' : 'series'}: ${shareUrl}`;
+      setSharedMovieInfo({ to, text, sentKey, shareId, type });
     }
   }, [location.search, currentUser, users]);
- 
+
   useEffect(() => {
     if (
       sharedMovieInfo &&
       selectedUser?.uid === sharedMovieInfo.to &&
-      message === '' // only send if message input is empty
+      message === ''
     ) {
       const autoSend = async () => {
         const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
         const messageRef = collection(db, 'chats', chatId, 'messages');
-
         await setDoc(doc(db, 'chats', chatId), {
-          users: [currentUser.uid, selectedUser.uid]
+          users: [currentUser.uid, selectedUser.uid],
         }, { merge: true });
 
         await addDoc(messageRef, {
@@ -158,42 +142,28 @@ const FlickChat = () => {
           avatar: currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y',
           text: sharedMovieInfo.text,
           timestamp: serverTimestamp(),
-          // Custom field to identify share link for showing "Watch Now"
           shared: {
             shareId: sharedMovieInfo.shareId,
             type: sharedMovieInfo.type,
-          }
+          },
         });
 
-        // Set flag so we don't resend on refresh
         localStorage.setItem(sharedMovieInfo.sentKey, 'true');
-
-        // Show toast notification
         setToast('Shared successfully!');
-
-        // Clear shared info
         setSharedMovieInfo(null);
-
-        // Hide toast after 3 seconds
         setTimeout(() => setToast(null), 3000);
       };
-
       autoSend();
     }
   }, [sharedMovieInfo, selectedUser]);
 
-  // Handle normal send button click
   const handleSend = async () => {
     if (!message.trim() || !currentUser || !selectedUser) return;
-
     const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
     const messageRef = collection(db, 'chats', chatId, 'messages');
-
-    await setDoc(
-      doc(db, 'chats', chatId),
-      { users: [currentUser.uid, selectedUser.uid] },
-      { merge: true }
-    );
+    await setDoc(doc(db, 'chats', chatId), {
+      users: [currentUser.uid, selectedUser.uid],
+    }, { merge: true });
 
     await addDoc(messageRef, {
       sender: currentUser.uid,
@@ -206,10 +176,17 @@ const FlickChat = () => {
     setMessage('');
   };
 
-  // Helper: Render text with clickable links for URLs
+  const handleDelete = async (id) => {
+    const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
+    const messageRef = doc(db, 'chats', chatId, 'messages', id);
+    try {
+      await updateDoc(messageRef, { deleted: true, text: '' });
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+    }
+  };
+
   const renderMessageText = (text) => {
-    if (!text) return null;
-    // Regex to detect URLs
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
     return parts.map((part, i) =>
@@ -223,34 +200,20 @@ const FlickChat = () => {
         >
           {part}
         </a>
-      ) : (
-        part
-      )
+      ) : part
     );
   };
 
-  // Handle message delete (optional)
-  const handleDelete = async (id) => {
-    const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
-    const messageRef = doc(db, 'chats', chatId, 'messages', id);
-
-    try {
-      await updateDoc(messageRef, { deleted: true, text: '' });
-    } catch (error) {
-      console.error('Failed to delete message:', error);
-    }
-  };
   const getUserStatus = (lastSeen) => {
-  if (!lastSeen) return 'Offline';
-  const seenTime = lastSeen.toDate();
-  const diff = new Date() - seenTime;
-  if (diff < 2 * 60 * 1000) return '🟢 Online';
-  return `Last seen ${formatDistanceToNow(seenTime, { addSuffix: true })}`;
-};
+    if (!lastSeen) return 'Offline';
+    const seenTime = lastSeen.toDate();
+    const diff = new Date() - seenTime;
+    if (diff < 2 * 60 * 1000) return ' Online';
+    return `Last seen ${formatDistanceToNow(seenTime, { addSuffix: true })}`;
+  };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      {/* Navbar with Instagram gradient */}
       <nav className="flex justify-between items-center text-white px-6 py-3 shadow bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
         <h1 className="text-xl font-semibold">FlickChat</h1>
         <div className="flex items-center space-x-3">
@@ -262,7 +225,7 @@ const FlickChat = () => {
                 className="w-8 h-8 rounded-full object-cover"
               />
               <span className="text-sm">
-                Hello, <strong>{currentUser.displayName || 'User'}</strong>
+                <strong>{currentUser.displayName || 'User'}</strong>
               </span>
             </>
           ) : (
@@ -272,11 +235,8 @@ const FlickChat = () => {
       </nav>
 
       <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
-        <aside
-          className={`md:w-1/3 w-full h-full ${
-            selectedUser ? 'hidden md:block' : 'block'
-          } bg-gray-100 px-3 py-4 border-r overflow-y-auto`}
-        >
+        {/* Sidebar */}
+        <aside className={`md:w-1/3 w-full ${selectedUser ? 'hidden md:block' : 'block'} bg-gray-100 px-3 py-4 border-r overflow-y-auto`}>
           <h2 className="text-xl font-bold mb-4">Chats</h2>
           <input
             type="text"
@@ -285,79 +245,57 @@ const FlickChat = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          {users.length === 0 ? (
-            <p className="text-sm">No other users available.</p>
-          ) : (
           <ul className="space-y-2">
-  {selectedUser && (
-    <li
-      key={selectedUser.uid}
-      className="p-3 rounded cursor-pointer bg-blue-200 text-sm"
-      onClick={() => setSelectedUser(selectedUser)}
-    >
-      {selectedUser.username}
-    </li>
-  )}
-  {users
-    .filter(
-      (user) =>
-        user.uid !== selectedUser?.uid &&
-        user.username.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .map((user) => (
-      <li
-        key={user.uid}
-        className="p-3 rounded cursor-pointer hover:bg-blue-100 text-sm"
-        onClick={() => setSelectedUser(user)}
-      >
-        <div className="flex items-center gap-3">
-          <img
-            src={user.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y'}
-            alt={user.username}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-          <div className="flex flex-col">
-            <span className="font-medium text-gray-800 dark:text-gray-900">{user.username}</span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {getUserStatus(user.lastSeen)}
-            </span>
-          </div>
-        </div>
-      </li>
-    ))}
-</ul>
-
-          )}
+            {users
+              .filter(user =>
+                user.username?.toLowerCase().includes(searchTerm.toLowerCase())
+              )
+              .map((user) => (
+                <li
+                  key={user.uid}
+                  className="p-3 rounded cursor-pointer hover:bg-blue-100 text-sm"
+                  onClick={() => setSelectedUser(user)}
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={user.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y'}
+                      alt={user.username}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-medium">{user.username}</span>
+                      <span className="text-xs text-gray-500">{getUserStatus(user.lastSeen)}</span>
+                    </div>
+                  </div>
+                </li>
+              ))}
+          </ul>
         </aside>
 
+        {/* Main Chat Area */}
         <main className="flex-1 flex flex-col overflow-hidden">
-          <header className="bg-gray-200 px-3 py-4 border-b flex justify-between items-center">
-            <div className="flex">
-              <span className="text-base md:text-lg font-semibold">
-                {selectedUser ? (
-                  selectedUser.photoURL ? (
-                    <div className="flex gap-1 items-center space-y-1">
-                      <img
-                        src={selectedUser.photoURL}
-                        alt="User"
-                        className="w-10 h-10 rounded-full"
-                      />
-                      <h1 className="text-sm font-semibold">{selectedUser.username}</h1>
-                    </div>
-                  ) : (
-                    <span>Select a user</span>
-                  )
-                ) : (
-                  <span>Select a user</span>
-                )}
-              </span>
-            </div>
-            <button
-              className="md:hidden text-sm text-blue-600 underline"
-              onClick={() => setSelectedUser(null)}
-            >
-              Back
-            </button>
+          <header className="bg-gray-200 px-3 py-4 border-b flex items-center gap-4">
+            {selectedUser && (
+              <button
+                className="md:hidden text-lg font-bold text-gray-900"
+                onClick={() => setSelectedUser(null)}
+              >
+             <FontAwesomeIcon icon={faArrowLeft} />
+              </button>
+            )}
+            {selectedUser && (
+              <div className="flex items-center gap-3">
+                <img
+                  src={selectedUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y'}
+                  alt={selectedUser.username}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div>
+                  <h1 className="font-semibold text-sm">{selectedUser.username}</h1>
+                  <p className="text-xs text-gray-500">{getUserStatus(selectedUser.lastSeen)}</p>
+                </div>
+              </div>
+            )}
           </header>
 
           <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 bg-white min-h-0">
@@ -374,51 +312,39 @@ const FlickChat = () => {
                   alt="Avatar"
                   className="w-6 h-6 rounded-full object-cover"
                 />
-                <div
-                  className={`relative p-3 rounded-lg text-sm break-words ${
-                    msg.sender === currentUser?.uid
-                      ? 'bg-gradient-to-r from-gray-500 to-pink-400 text-black '
-                      : 'bg-gray-200 bg-gradient-to-r from-orange-400 to-pink-950 text-white'
-                  }`}
-                >
+                <div className={`relative p-3 rounded-lg text-sm break-words ${
+                  msg.sender === currentUser?.uid
+                    ? 'bg-gradient-to-r from-gray-500 to-pink-400 text-black'
+                    : 'bg-gradient-to-r from-orange-400 to-pink-900 text-white'
+                }`}>
                   <div className="font-semibold text-xs mb-1">{msg.username}</div>
-
                   {msg.deleted ? (
                     <div className="italic text-gray-900">This message was deleted</div>
                   ) : (
-                    <div className='w-65'>
-                      {/* Render message text with clickable links */}
+                    <div className="w-65">
                       {renderMessageText(msg.text)}
-                      {/* If message has shared info, show "Watch Now" button */}
                       {msg.shared && (
                         <>
-                      <div className='bg-gray-200 w-full h-60'>
-                       <img src={msg.shared.posterUrl} alt="" className='w-full h-full object-cover'/>
-                      </div>
-                        <button
-                          onClick={() =>
-                            navigate(`/${msg.shared.type}/${msg.shared.shareId}`)
-                          }
-                          className="p-2 mt-1 inline-block text-xs bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-900"
+                        <div className='bg-gray-200 h-60 sw-full rounded-2xl'> <img src={msg.shared.posterUrl} alt="" className='w-full h-full object-cover rounded-2xl' /></div> <button
+                          onClick={() => navigate(`/${msg.shared.type}/${msg.shared.shareId}`)}
+                          className="mt-2 text-xs bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
                         >
-                         Watch Now
+                          Watch Now
                         </button>
                         </>
                       )}
                     </div>
                   )}
-
                   {msg.timestamp && (
                     <div className="text-[10px] mt-1 opacity-70">
                       {formatDistanceToNow(new Date(msg.timestamp.seconds * 1000), { addSuffix: true })}
                     </div>
                   )}
-
                   {msg.sender === currentUser?.uid && !msg.deleted && (
                     <button
-                      className={`absolute top-1 right-1 z-10 px-2 py-1 text-xs rounded-md bg-red-100 text-red-700 shadow-sm transition-opacity duration-300 ease-in-out
-                      ${showDeleteId === msg.id ? 'opacity-100' : 'opacity-0'}
-                      md:group-hover:opacity-100`}
+                      className={`absolute top-1 right-1 px-2 py-1 text-xs bg-red-100 text-red-700 rounded shadow-sm transition-opacity ${
+                        showDeleteId === msg.id ? 'opacity-100' : 'opacity-0'
+                      } md:group-hover:opacity-100`}
                       onClick={() => handleDelete(msg.id)}
                     >
                       Delete
@@ -454,9 +380,8 @@ const FlickChat = () => {
         </main>
       </div>
 
-      {/* Toast notification */}
       {toast && (
-        <div className="fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-lg animate-fadeInOut">
+        <div className="fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-lg">
           {toast}
         </div>
       )}

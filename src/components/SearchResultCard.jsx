@@ -18,6 +18,7 @@ const SearchResultCard = ({ item }) => {
     else if (item.type === 'series') navigate(`/series/${item.id}`);
     else navigate(`/movie/${item.id}`);
   };
+  if (item.adult === true) return null;
 
   return (
     <div

@@ -2,9 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
-import FavoriteButton from '../components/FavoriteButton';
-import WatchlistButton from './WatchlistButton';
-import { db } from '../firebase';
 
 const getRatingColor = (rating) => {
   if (rating >= 7.5) return 'bg-green-500';
@@ -22,6 +19,8 @@ const MovieCard = ({ movie }) => {
     else navigate(`/series/${movie.id}`);
   };
 
+  if (movie.adult === true) return null;
+
   return (
     <div
       className="relative w-38 h-[320px] rounded overflow-hidden shadow-lg grow-0 shrink-0 basis-auto hover:scale-105 transition duration-300 cursor-pointer"
@@ -35,7 +34,7 @@ const MovieCard = ({ movie }) => {
           onClick={handleClick}
         />
       ) : (
-        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+        <div className="w-full h-[250px] bg-gray-300 flex items-center justify-center text-gray-500">
           No Image
         </div>
       )}
@@ -47,7 +46,7 @@ const MovieCard = ({ movie }) => {
       ) : null}
 
       <div className="absolute bottom-3 w-full bg-white bg-opacity-90 text-black text-sm font-semibold text-center py-1">
- <p className="truncate">{movie.title || movie.name}</p>
+        <p className="truncate">{movie.title || movie.name}</p>
       </div>
     </div>
   );

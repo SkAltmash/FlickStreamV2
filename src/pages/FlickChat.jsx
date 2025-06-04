@@ -12,6 +12,7 @@ import {
   serverTimestamp,
   updateDoc,
 } from 'firebase/firestore';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { formatDistanceToNow } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -23,9 +24,13 @@ const FlickChat = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
-  const messagesEndRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleteId, setShowDeleteId] = useState(null);
+  const [toast, setToast] = useState(null); // For success notification
+  const [sharedMovieInfo, setSharedMovieInfo] = useState(null);
+  const messagesEndRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -83,15 +88,74 @@ const FlickChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleDelete = async (messageId) => {
-    const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
-    const messageRef = doc(db, 'chats', chatId, 'messages', messageId);
-    await updateDoc(messageRef, {
-      deleted: true,
-      text: "",
-    });
-  };
+  // Parse share params on mount
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const shareId = params.get('shareId');
+    const type = params.get('type');
+    const to = params.get('to');
 
+    if (shareId && type && to && currentUser) {
+      // Check if message already sent for this share (prevent re-send)
+      const sentKey = `sharedMessageSent_${shareId}_${to}`;
+        // Auto-select user
+        const findUser = users.find(u => u.uid === to);
+        if (findUser) setSelectedUser(findUser);
+
+        // Prepare share message text
+        const shareUrl = `${window.location.origin}/${type}/${shareId}`;
+        const text = `🎬 Check this ${type === 'movie' ? 'movie' : 'series'}: ${shareUrl}`;
+
+        setSharedMovieInfo({ to, text, sentKey, shareId, type });
+      
+    }
+  }, [location.search, currentUser, users]);
+
+  useEffect(() => {
+    if (
+      sharedMovieInfo &&
+      selectedUser?.uid === sharedMovieInfo.to &&
+      message === '' // only send if message input is empty
+    ) {
+      const autoSend = async () => {
+        const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
+        const messageRef = collection(db, 'chats', chatId, 'messages');
+
+        await setDoc(doc(db, 'chats', chatId), {
+          users: [currentUser.uid, selectedUser.uid]
+        }, { merge: true });
+
+        await addDoc(messageRef, {
+          sender: currentUser.uid,
+          username: currentUser.displayName || 'Anonymous',
+          avatar: currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y',
+          text: sharedMovieInfo.text,
+          timestamp: serverTimestamp(),
+          // Custom field to identify share link for showing "Watch Now"
+          shared: {
+            shareId: sharedMovieInfo.shareId,
+            type: sharedMovieInfo.type,
+          }
+        });
+
+        // Set flag so we don't resend on refresh
+        localStorage.setItem(sharedMovieInfo.sentKey, 'true');
+
+        // Show toast notification
+        setToast('Shared successfully!');
+
+        // Clear shared info
+        setSharedMovieInfo(null);
+
+        // Hide toast after 3 seconds
+        setTimeout(() => setToast(null), 3000);
+      };
+
+      autoSend();
+    }
+  }, [sharedMovieInfo, selectedUser]);
+
+  // Handle normal send button click
   const handleSend = async () => {
     if (!message.trim() || !currentUser || !selectedUser) return;
 
@@ -113,6 +177,41 @@ const FlickChat = () => {
     });
 
     setMessage('');
+  };
+
+  // Helper: Render text with clickable links for URLs
+  const renderMessageText = (text) => {
+    if (!text) return null;
+    // Regex to detect URLs
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) =>
+      urlRegex.test(part) ? (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline text-blue-600 hover:text-blue-800"
+        >
+          {part}
+        </a>
+      ) : (
+        part
+      )
+    );
+  };
+
+  // Handle message delete (optional)
+  const handleDelete = async (id) => {
+    const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
+    const messageRef = doc(db, 'chats', chatId, 'messages', id);
+
+    try {
+      await updateDoc(messageRef, { deleted: true, text: '' });
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+    }
   };
 
   return (
@@ -178,7 +277,7 @@ const FlickChat = () => {
                     onClick={() => setSelectedUser(user)}
                   >
                     <div className="flex gap-1 items-center space-y-1">
-                      <img src={user.photoURL} className="w-10 h-10 rounded-full" />
+                      <img src={user.photoURL} className="w-10 h-10 rounded-full" alt={user.username} />
                       {user.username}
                     </div>
                   </li>
@@ -219,14 +318,13 @@ const FlickChat = () => {
 
           <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 bg-white min-h-0">
             {messages.map((msg) => (
-            <div
-              key={msg.id}
-              onClick={() => setShowDeleteId(msg.id)}
-               className={`group flex items-end space-x-2 max-w-[85%] ${
-             msg.sender === currentUser?.uid ? 'ml-auto flex-row-reverse space-x-reverse' : ''
-                   }`}
-                   >
-
+              <div
+                key={msg.id}
+                onClick={() => setShowDeleteId(msg.id)}
+                className={`group flex items-end space-x-2 max-w-[85%] ${
+                  msg.sender === currentUser?.uid ? 'ml-auto flex-row-reverse space-x-reverse' : ''
+                }`}
+              >
                 <img
                   src={msg.avatar}
                   alt="Avatar"
@@ -244,7 +342,22 @@ const FlickChat = () => {
                   {msg.deleted ? (
                     <div className="italic text-gray-900">This message was deleted</div>
                   ) : (
-                    <div>{msg.text}</div>
+                    <div>
+                      {/* Render message text with clickable links */}
+                      {renderMessageText(msg.text)}
+
+                      {/* If message has shared info, show "Watch Now" button */}
+                      {msg.shared && (
+                        <button
+                          onClick={() =>
+                            navigate(`/${msg.shared.type}/${msg.shared.shareId}`)
+                          }
+                          className="mt-1 inline-block text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                        >
+                          ▶ Watch Now
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   {msg.timestamp && (
@@ -253,18 +366,16 @@ const FlickChat = () => {
                     </div>
                   )}
 
-                 {msg.sender === currentUser?.uid && !msg.deleted && (
-                 <button
-                  className={`absolute top-1 right-1 z-10 px-2 py-1 text-xs rounded-md bg-red-100 text-red-700 shadow-sm transition-opacity duration-300 ease-in-out
-                  ${showDeleteId === msg.id ? 'opacity-100' : 'opacity-0'}
-                   md:group-hover:opacity-100`}
-                   onClick={() => handleDelete(msg.id)}
-                    >                  
-                   Delete
-                 </button>
-
+                  {msg.sender === currentUser?.uid && !msg.deleted && (
+                    <button
+                      className={`absolute top-1 right-1 z-10 px-2 py-1 text-xs rounded-md bg-red-100 text-red-700 shadow-sm transition-opacity duration-300 ease-in-out
+                      ${showDeleteId === msg.id ? 'opacity-100' : 'opacity-0'}
+                      md:group-hover:opacity-100`}
+                      onClick={() => handleDelete(msg.id)}
+                    >
+                      Delete
+                    </button>
                   )}
-
                 </div>
               </div>
             ))}
@@ -294,6 +405,13 @@ const FlickChat = () => {
           </footer>
         </main>
       </div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-lg animate-fadeInOut">
+          {toast}
+        </div>
+      )}
     </div>
   );
 };

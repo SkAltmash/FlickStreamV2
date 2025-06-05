@@ -86,7 +86,7 @@ function SearchBar() {
   }
 
   return (
-    <div className="relative flex justify-center bg-white dark:bg-black " ref={dropdownRef}>
+    <div className="relative flex justify-center" ref={dropdownRef}>
       <form
         className="flex justify-center align-middle mt-10 w-full"
         onSubmit={DisplaySearch}

@@ -1,4 +1,3 @@
-// FlickChat.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { db, auth } from '../firebase';
 import {
@@ -12,6 +11,7 @@ import {
   getDocs,
   serverTimestamp,
   updateDoc,
+  limit,
 } from 'firebase/firestore';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -32,6 +32,7 @@ const FlickChat = () => {
   const messagesEndRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
+const [unreadStatus, setUnreadStatus] = useState({});
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -122,6 +123,29 @@ const FlickChat = () => {
       setSharedMovieInfo({ to, text, sentKey, shareId, type });
     }
   }, [location.search, currentUser, users]);
+   useEffect(() => {
+  if (!currentUser) return;
+
+  const unsubscribes = [];
+
+  users.forEach((user) => {
+    const chatId = [currentUser.uid, user.uid].sort().join('_');
+    const msgRef = collection(db, 'chats', chatId, 'messages');
+    const q = query(msgRef, orderBy('timestamp', 'desc'), limit(1));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        const msg = snapshot.docs[0].data();
+        const isUnread = !msg.readBy?.includes(currentUser.uid) && msg.sender !== currentUser.uid;
+        setUnreadStatus(prev => ({ ...prev, [user.uid]: isUnread }));
+      }
+    });
+
+    unsubscribes.push(unsubscribe);
+  });
+
+  return () => unsubscribes.forEach(unsub => unsub());
+}, [users, currentUser]);
 
   useEffect(() => {
     if (
@@ -262,7 +286,12 @@ const FlickChat = () => {
                       className="w-10 h-10 rounded-full object-cover"
                     />
                     <div className="flex flex-col">
-                      <span className="font-medium dark:text-white">{user.username}</span>
+<span className="font-medium dark:text-white flex items-center gap-2">
+  {user.username}
+  {unreadStatus[user.uid] && (
+    <span className="w-2 h-2 rounded-full bg-red-500 inline-block animate-pulse"></span>
+  )}
+</span>
                       <span className="text-xs text-gray-500 dark:text-gray-400">{getUserStatus(user.lastSeen)}</span>
                     </div>
                   </div>
@@ -304,70 +333,94 @@ const FlickChat = () => {
               </div>
             ) : (
               <>
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    onClick={() => setShowDeleteId(msg.id)}
-                    className={`group flex items-end space-x-2 max-w-[85%] ${
-                      msg.sender === currentUser?.uid ? 'ml-auto flex-row-reverse space-x-reverse' : ''
-                    }`}
-                  >
-                    <img
-                      src={msg.avatar}
-                      alt="Avatar"
-                      className="w-6 h-6 rounded-full object-cover"
-                    />
-                    <div className={`relative p-3 rounded-lg text-sm break-words ${
-                      msg.sender === currentUser?.uid
-                        ? 'bg-gradient-to-r from-gray-500 to-pink-400 text-black'
-                        : 'bg-gradient-to-r from-orange-400 to-pink-900 text-white'
-                    }`}>
-                      <div className="font-semibold text-xs mb-1">{msg.username}</div>
-                      {msg.deleted ? (
-                        <div className="italic text-gray-900 dark:text-gray-300">This message was deleted</div>
-                      ) : (
-                        <div className="w-65">
-                          {renderMessageText(msg.text)}
-                          {msg.shared && (
-                            <>
-                              <div className="bg-gray-200 dark:bg-gray-700 h-60 w-full rounded-2xl">
-                                <img
-                                  src={msg.shared.posterUrl}
-                                  alt=""
-                                  className="w-full h-full object-cover rounded-2xl"
-                                />
-                              </div>
-                              <button
-                                onClick={() =>
-                                  navigate(`/${msg.shared.type}/${msg.shared.shareId}`)
-                                }
-                                className="mt-2 text-xs bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
-                              >
-                                Watch Now
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      )}
-                      {msg.timestamp && (
-                        <div className="text-[10px] mt-1 opacity-70">
-                          {formatDistanceToNow(new Date(msg.timestamp.seconds * 1000), { addSuffix: true })}
-                        </div>
-                      )}
-                      {msg.sender === currentUser?.uid && !msg.deleted && (
-                        <button
-                          className={`absolute top-1 right-1 px-2 py-1 text-xs bg-red-100 text-red-700 rounded shadow-sm transition-opacity ${
-                            showDeleteId === msg.id ? 'opacity-100' : 'opacity-0'
-                          } md:group-hover:opacity-100`}
-                          onClick={() => handleDelete(msg.id)}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
+              {messages.map((msg) => (
+  <div
+    key={msg.id}
+    onClick={() => setShowDeleteId(msg.id)}
+    className={`group flex items-end space-x-2 max-w-[85%] ${
+      msg.sender === currentUser?.uid ? 'ml-auto flex-row-reverse space-x-reverse' : ''
+    }`}
+  >
+    <img
+      src={msg.avatar}
+      alt="Avatar"
+      className="w-6 h-6 rounded-full object-cover"
+    />
+    <div
+      className={`relative p-3 rounded-lg text-sm break-words ${
+        msg.sender === currentUser?.uid
+          ? 'bg-gradient-to-r from-gray-500 to-pink-400 text-black'
+          : 'bg-gradient-to-r from-orange-400 to-pink-900 text-white'
+      }`}
+    >
+      <div className="font-semibold text-xs mb-1">{msg.username}</div>
+
+      {msg.deleted ? (
+        <div className="italic text-gray-900 dark:text-gray-300">
+          This message was deleted
+        </div>
+      ) : (
+        <div className="w-65">
+          {renderMessageText(msg.text)}
+
+          {msg.shared && (
+            <>
+              <div className="bg-gray-200 dark:bg-gray-700 h-60 w-full rounded-2xl">
+                <img
+                  src={msg.shared.posterUrl}
+                  alt=""
+                  className="w-full h-full object-cover rounded-2xl"
+                />
+              </div>
+              <button
+                onClick={() =>
+                  navigate(`/${msg.shared.type}/${msg.shared.shareId}`)
+                }
+                className="mt-2 text-xs bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
+              >
+                Watch Now
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {msg.timestamp && (
+        <div className="text-[10px] mt-1 opacity-70 flex items-center gap-1">
+          <span>
+            {formatDistanceToNow(new Date(msg.timestamp.seconds * 1000), {
+              addSuffix: true,
+            })}
+          </span>
+
+          {/* Show blue tick for messages sent by current user and not deleted */}
+          {msg.sender === currentUser?.uid && !msg.deleted && (
+            <span title={msg.readBy?.includes(selectedUser?.uid) ? 'Seen' : 'Delivered'}>
+              {msg.readBy?.includes(selectedUser?.uid) ? (
+                <i className="fas fa-check-double text-blue-500"></i> // Blue double tick
+              ) : (
+                <i className="fas fa-check text-white"></i> // Single gray tick
+              )}
+            </span>
+          )}
+        </div>
+      )}
+
+      {msg.sender === currentUser?.uid && !msg.deleted && (
+        <button
+          className={`absolute top-1 right-1 px-2 py-1 text-xs bg-red-100 text-red-700 rounded shadow-sm transition-opacity ${
+            showDeleteId === msg.id ? 'opacity-100' : 'opacity-0'
+          } md:group-hover:opacity-100`}
+          onClick={() => handleDelete(msg.id)}
+        >
+          Delete
+        </button>
+      )}
+    </div>
+  </div>
+))}
+<div ref={messagesEndRef} />
+
               </>
             )}
           </div>

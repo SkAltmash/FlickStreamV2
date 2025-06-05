@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import SeasonWithEpisodes from '../components/SeasonWithEpisodes';
-import DetailsLoader from '../DetailsLoader';
+import DetailsLoader from '../components/DetailsLoader';
 import { Link } from 'react-router-dom';
 import FavoriteButton from '../components/FavoriteButton';
 import WatchlistButton from '../components/WatchlistButton';
@@ -48,7 +48,7 @@ const SeriesDetail = () => {
 
   return (
     <>
-   <div className="bg-white text-black min-h-screen py-6 flex flex-col items-center mt-4">
+   <div className="bg-white text-black min-h-screen py-6 flex flex-col items-center mt-4 dark:bg-black dark:text-white">
         {/* Video or Backdrop with Effect */}
       <div className="relative w-full max-w-[600px] aspect-video rounded-md overflow-hidden shadow-md mb-8">
     <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/50 pointer-events-none" />
@@ -67,7 +67,7 @@ const SeriesDetail = () => {
         className="w-full h-full object-cover"
       />
     ) : (
-      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 relative">
+      <div className="w-full h-full bg-gray-400 flex items-center justify-center text-gray-600 relative">
         No trailer or backdrop available
       </div>
     )}
@@ -81,7 +81,7 @@ const SeriesDetail = () => {
           {/* Info */}
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-2">{movie.name}</h1>
-            <p className="text-black mb-1">
+            <p className="text-black mb-1 dark:text-white">
             Total Seasons {movie.number_of_seasons} .
             Total Episodes {movie.number_of_episodes}</p>
 
@@ -94,7 +94,7 @@ const SeriesDetail = () => {
               <div className='flex gap-5 w-full mb-2'>
                 <WatchlistButton movie={movie} />
                 <FavoriteButton movie={movie} />
-                <button onClick={() => setShowShare(true)} className="flex items-center gap-2  text-black px-4 py-2 rounded hover:bg-gray-500">
+                <button onClick={() => setShowShare(true)} className="flex items-center gap-2  text-black px-4 py-2 rounded hover:bg-gray-500 dark:text-gray-200">
                  <FaShare />
                  </button>
 
@@ -121,43 +121,38 @@ const SeriesDetail = () => {
           </div>
 
             {/* Overview */}
-            <p className="text-gray-800 leading-relaxed">{movie.overview}</p>
+            <p className="text-gray-800 leading-relaxed dark:text-white">{movie.overview}</p>
           </div>
         </div>
       </div>
     {/* Cast Section */}
-<div className="mt-3 px-4 mx-auto w-screen">
-  <h2 className="text-2xl font-semibold mb-4">Top Cast</h2>
+<div className=" px-4 py-6 w-screen">
+  <h2 className="text-2xl font-semibold mb-4 px-4">Top Cast</h2>
 
   {/* Mobile: horizontal scroll | Desktop: grid */}
-  <div className="flex md:grid md:grid-cols-5 gap-4 overflow-x-auto md:overflow-visible scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 pb-2">
-    {movie.credits?.cast?.slice(0, 10).map((cast) => (
+    <div className="flex md:grid md:grid-cols-5 gap-4 overflow-x-auto md:overflow-visible scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 pb-2">
+   {movie.credits?.cast?.slice(0, 10).map((cast) => (
     <Link to={`/person/${cast.id}`} key={cast.id} className="min-w-[100px] md:min-w-0 flex-shrink-0 text-center">
-
-      <div
-        key={cast.id}
-        className="min-w-[100px] md:min-w-0 flex-shrink-0 text-center"
-      >
-        <div className="w-24 h-24 mx-auto rounded-full overflow-hidden shadow-md mb-2 aspect-square">
-          {cast.profile_path ? (
-            <img
-              src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
-              alt={cast.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
-              No Image
-            </div>
-          )}
+    <div className="w-24 h-24 mx-auto rounded-full overflow-hidden shadow-md mb-2 aspect-square">
+      {cast.profile_path ? (
+        <img
+          src={`https://image.tmdb.org/t/p/w185${cast.profile_path}`}
+          alt={cast.name}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-600 dark:text-gray-200">
+          No Image
         </div>
-        <p className="text-sm font-medium text-gray-800 truncate">{cast.name}</p>
-        <p className="text-xs text-gray-500 truncate">{cast.character}</p>
-      </div>
-        </Link>
+      )}
+    </div>
+    <p className="text-sm font-medium text-gray-800 truncate  dark:text-gray-200">{cast.name}</p>
+    <p className="text-xs text-gray-500 truncate  dark:text-gray-50">{cast.character}</p>
+  </Link>
+))}
 
-    ))}
   </div>
+
 </div>
  {/* TV show detail page */}
 <div className="max-w-6xl mx-auto px-4 mt-10">

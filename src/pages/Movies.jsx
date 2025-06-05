@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import MovieCard from '../components/MovieCard';
+import MovieCardSkeleton from '../components/MovieCardSkeleton'; // new
 
 const Movies = () => {
   const [movies, setMovies] = useState([]);
@@ -33,6 +34,8 @@ const Movies = () => {
         {movies.map((movie) => (
           <MovieCard key={movie.id} movie={movie} />
         ))}
+        {loading && page === 1 &&
+          Array.from({ length: 12 }).map((_, i) => <MovieCardSkeleton key={i} />)}
       </div>
 
       <div className="flex justify-center mt-8">
@@ -41,7 +44,7 @@ const Movies = () => {
           disabled={loading}
           className="px-5 py-2 bg-yellow-500 dark:bg-yellow-400 text-black font-semibold rounded hover:bg-yellow-600 dark:hover:bg-yellow-500 transition disabled:opacity-50"
         >
-          {loading ? 'Loading...' : 'Load More'}
+          {loading && page > 1 ? 'Loading...' : 'Load More'}
         </button>
       </div>
     </div>

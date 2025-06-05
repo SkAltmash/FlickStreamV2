@@ -54,7 +54,7 @@ const HeroSection = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96 bg-gray-900 text-white">
+      <div className="flex justify-center items-center h-96 bg-white text-black dark:text-white dark:ba-black">
         Loading...
       </div>
     );

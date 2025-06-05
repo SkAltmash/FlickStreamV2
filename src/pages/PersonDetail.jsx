@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
-import Loader from '../components/Loader';
-
+import PersonDetailsSkeleton from '../components/PersonDetailsSkeleton';
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
 const PersonDetail = () => {
@@ -33,7 +32,7 @@ const PersonDetail = () => {
     fetchPerson();
   }, [id]);
 
-  if (loading) return <Loader />;
+  if (loading) return <PersonDetailsSkeleton />
   if (!person) return <div className="text-center mt-10 text-gray-800 dark:text-gray-200">Cast member not found.</div>;
 
   return (

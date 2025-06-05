@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { Link } from 'react-router-dom';
-import DetailsLoader from '../DetailsLoader';
+import DetailsLoader from '../components/DetailsLoader';
 import FavoriteButton from '../components/FavoriteButton';
 import WatchlistButton from '../components/WatchlistButton';
 import CommentSection from '../components/CommentSection';
@@ -92,7 +92,7 @@ const MovieDetail = () => {
                 <div className='flex gap-5 w-full mb-2'>
                 <WatchlistButton movie={movie} />
                 <FavoriteButton movie={movie} />
-                 <button onClick={() => setShowShare(true)} className="flex items-center gap-2  text-black px-4 py-2 rounded hover:bg-gray-500">
+                 <button onClick={() => setShowShare(true)} className="flex items-center gap-2  text-black px-4 py-2 rounded hover:bg-gray-500 dark:text-gray-200">
                  <FaShare />
                  </button>
 

@@ -23,8 +23,7 @@ const MovieCard = ({ movie }) => {
 
   return (
     <div
-      className="relative w-38 h-[320px] rounded overflow-hidden shadow-lg grow-0 shrink-0 basis-auto hover:scale-105 transition duration-300 cursor-pointer"
-    >
+      className="relative w-38 h-[320px] rounded overflow-hidden shadow-lg grow-0 shrink-0 basis-auto hover:scale-105 transition duration-300 cursor-pointer bg-white dark:bg-[#1e1e1e] p-1">
       {imagePath ? (
         <LazyLoadImage
           src={`${imageBaseUrl}${imagePath}`}
@@ -45,8 +44,8 @@ const MovieCard = ({ movie }) => {
         </div>
       ) : null}
 
-      <div className="absolute bottom-3 w-full bg-white bg-opacity-90 text-black text-sm font-semibold text-center py-1">
-        <p className="truncate">{movie.title || movie.name}</p>
+      <div className="absolute bottom-3 w-full bg-white dark:bg-[#1e1e1e] bg-opacity-90 text-black text-sm font-semibold text-center py-1">
+        <p className="truncate dark:text-white">{movie.title || movie.name}</p>
       </div>
     </div>
   );

@@ -22,7 +22,7 @@ const SearchResultCard = ({ item }) => {
 
   return (
     <div
-      className="relative w-38 rounded overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition duration-300"
+      className="relative w-38 h-[320px] rounded overflow-hidden shadow-lg grow-0 shrink-0 basis-auto hover:scale-105 transition duration-300 cursor-pointer bg-white dark:bg-[#1e1e1e] p-1"
       onClick={handleClick}
     >
       {imagePath ? (
@@ -50,9 +50,9 @@ const SearchResultCard = ({ item }) => {
         </div>
       )}
 
-      <div className=" bg-opacity-80 text-black text-sm font-semibold text-center h-10">
-        <p className="text-center truncate">{item.title || item.name}</p>
-        <p className="text-xs text-black capitalize">{item.type}</p>
+      <div className="absolute bottom-3 w-full bg-white dark:bg-[#1e1e1e] bg-opacity-90 text-black text-sm font-semibold text-center py-1">
+        <p className="truncate dark:text-white">{item.title || item.name}</p>
+        <p className="text-xs text-black capitalize dark:text-white">{item.type}</p>
       </div>
     </div>
   );

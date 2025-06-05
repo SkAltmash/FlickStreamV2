@@ -48,7 +48,7 @@ const App = () => {
   }, [user]);
 
   return (
-    <>
+    <div className='bg-white dark:bg-black'>
       {location.pathname !== '/chat' && <Navbar user={user} />}
 
       <ToastContainer position="top-center" autoClose={2000} />
@@ -72,7 +72,7 @@ const App = () => {
       </Routes>
 
       {location.pathname !== '/chat' && <Footer user={user} />}
-    </>
+    </div>
   );
 };
 

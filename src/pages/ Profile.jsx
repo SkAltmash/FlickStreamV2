@@ -51,17 +51,18 @@ const Profile = () => {
     navigate('/login');
   };
 
-  if (!user) return <p className="text-center mt-10">Please log in to view your profile.</p>;
+  if (!user)
+    return <p className="text-center mt-10 text-gray-700 dark:text-gray-200">Please log in to view your profile.</p>;
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded shadow mt-8">
-      <h1 className="text-2xl font-bold mb-6">Your Profile</h1>
+    <div className="max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded shadow mt-8 transition-colors duration-300">
+      <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">Your Profile</h1>
 
       <div className="flex flex-col items-center mb-6">
         <img
           src={photoURL || 'https://via.placeholder.com/150'}
           alt="Profile"
-          className="w-32 h-32 rounded-full object-cover mb-4 border"
+          className="w-32 h-32 rounded-full object-cover mb-4 border dark:border-gray-600"
         />
 
         <div className="flex justify-center gap-4 mt-2 flex-wrap">
@@ -71,8 +72,10 @@ const Profile = () => {
               src={url}
               alt={`Avatar ${idx + 1}`}
               onClick={() => setSelectedAvatar(url)}
-              className={`h-20 w-20 rounded-full cursor-pointer border-4 ${
-                selectedAvatar === url ? 'border-green-600' : 'border-transparent'
+              className={`h-20 w-20 rounded-full cursor-pointer border-4 transition-all duration-200 ${
+                selectedAvatar === url
+                  ? 'border-emerald-500'
+                  : 'border-gray-300 dark:border-gray-600'
               }`}
             />
           ))}
@@ -80,13 +83,13 @@ const Profile = () => {
       </div>
 
       <form onSubmit={handleUpdateProfile} className="space-y-4">
-        <label className="block font-semibold">
+        <label className="block font-semibold text-gray-800 dark:text-gray-200">
           Username
           <input
             type="text"
             value={newDisplayName}
             onChange={(e) => setNewDisplayName(e.target.value)}
-            className="w-full p-2 border rounded mt-1"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded mt-1"
             required
           />
         </label>
@@ -94,17 +97,17 @@ const Profile = () => {
         <button
           type="submit"
           disabled={updating}
-          className="w-full bg-blue-600 text-white p-2 rounded"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition"
         >
           {updating ? 'Updating...' : 'Update Profile'}
         </button>
       </form>
 
-      {message && <p className="mt-4 text-center text-green-600">{message}</p>}
+      {message && <p className="mt-4 text-center text-green-600 dark:text-green-400">{message}</p>}
 
       <button
         onClick={handleSignOut}
-        className="mt-6 w-full bg-red-600 text-white p-2 rounded hover:bg-red-700"
+        className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white p-2 rounded transition"
       >
         Sign Out
       </button>

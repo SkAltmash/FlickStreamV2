@@ -26,8 +26,8 @@ const Series = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Now Playing Movies</h1>
+    <div className="p-6 bg-white dark:bg-black text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
+      <h1 className="text-2xl font-bold mb-4">Now Playing Series</h1>
       <div className="flex flex-wrap gap-2 justify-center sm:gap-4">
         {movies.map((movie) => (
           <MovieCard key={movie.id} movie={movie} />

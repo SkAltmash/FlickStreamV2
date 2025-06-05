@@ -32,16 +32,16 @@ const Login = () => {
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto mt-20 mb-20">
-      <h1 className="text-2xl font-bold mb-4">Log In</h1>
+    <div className="p-6 max-w-md mx-auto mt-20 mb-20 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 shadow rounded transition-colors duration-300">
+      <h1 className="text-2xl font-bold mb-4 text-center">Log In</h1>
 
-      {errorMsg && <div className="text-red-600 mb-4">{errorMsg}</div>}
+      {errorMsg && <div className="text-red-600 dark:text-red-400 mb-4 text-center">{errorMsg}</div>}
 
       <form onSubmit={handleLogin} className="space-y-4" noValidate>
         <input
           type="email"
           placeholder="Email"
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
           value={email}
           onChange={(e) => setEmail(e.target.value.trimStart())}
           required
@@ -50,7 +50,7 @@ const Login = () => {
         <input
           type="password"
           placeholder="Password"
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -58,7 +58,7 @@ const Login = () => {
         />
         <button
           type="submit"
-          className="w-full bg-green-600 text-white p-2 rounded"
+          className="w-full bg-green-600 hover:bg-green-700 transition text-white p-2 rounded font-semibold"
           disabled={loading}
         >
           {loading ? 'Logging in...' : 'Log In'}

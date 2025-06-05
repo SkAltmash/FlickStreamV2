@@ -2,8 +2,9 @@ import React from 'react';
 
 const About = () => {
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-300 rounded-lg shadow my-10">
       <h1 className="text-4xl font-bold mb-6">About Us</h1>
+      
       <p className="mb-4 text-lg leading-relaxed">
         Welcome to our website! This project is built using React and TMDB API to provide movie and TV show details.
       </p>
@@ -16,7 +17,7 @@ const About = () => {
 
       <h2 className="text-2xl font-semibold mt-10 mb-4">Contact Info</h2>
       <ul className="list-disc list-inside space-y-2 text-lg">
-        <li>Email: skaltmash3@gmail.com</li>
+        <li>Email: <a href="mailto:skaltmash3@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">skaltmash3@gmail.com</a></li>
         <li>Location: Wardha, India</li>
       </ul>
     </div>

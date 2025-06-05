@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import SeasonWithEpisodes from '../components/SeasonWithEpisodes';
-import Loader from '../components/Loader';
+import DetailsLoader from '../DetailsLoader';
 import { Link } from 'react-router-dom';
 import FavoriteButton from '../components/FavoriteButton';
 import WatchlistButton from '../components/WatchlistButton';
@@ -38,7 +38,7 @@ const SeriesDetail = () => {
     fetchMovie();
   }, [id]);
 
-  if (loading) return <Loader></Loader>;
+  if (loading) return <DetailsLoader />
   if (!movie) return <div className="text-center mt-10">Movie not found.</div>;
 
   const trailer = movie.videos?.results?.find(
@@ -107,16 +107,18 @@ const SeriesDetail = () => {
             )}
 
             {/* Genres */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {movie.genres?.map((genre) => (
-                <span
-                  key={genre.id}
-                  className="bg-gray-900 text-white px-2 py-1 text-xs rounded"
-                >
+          <div className="flex flex-wrap gap-2 mb-4">
+            {movie.genres?.map((genre) => (
+              <Link
+                to={`/search?genre=${genre.id}&type=movie`} // or `tv` depending on the current media type
+                key={genre.id}
+              >
+                <span className="cursor-pointer bg-gray-900 text-white px-2 py-1 text-xs rounded dark:bg-gray-200 dark:text-gray-950 hover:opacity-80 transition">
                   {genre.name}
                 </span>
-              ))}
-            </div>
+              </Link>
+            ))}
+          </div>
 
             {/* Overview */}
             <p className="text-gray-800 leading-relaxed">{movie.overview}</p>

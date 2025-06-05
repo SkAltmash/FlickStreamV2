@@ -86,7 +86,7 @@ function SearchBar() {
   }
 
   return (
-    <div className="relative flex justify-center " ref={dropdownRef}>
+    <div className="relative flex justify-center bg-white dark:bg-black " ref={dropdownRef}>
       <form
         className="flex justify-center align-middle mt-10 w-full"
         onSubmit={DisplaySearch}
@@ -100,7 +100,7 @@ function SearchBar() {
               navigate(`/search?query=${encodeURIComponent(query)}&filter=${newFilter}`, { replace: true });
             }
           }}
-          className="border border-gray-700 px-2 rounded-l-md h-10 outline-0"
+          className="border border-gray-700 px-2 rounded-l-md h-10 outline-0 dark:text-white"
         >
           <option value="all">All</option>
           <option value="movie">Movies</option>
@@ -113,7 +113,7 @@ function SearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search movies, series, cast..."
-          className="pl-2 pr-4 py-2 border border-gray-700 border-l-0 border-r-0 outline-0 w-7/12 h-10"
+          className="pl-2 pr-4 py-2 border border-gray-700 border-l-0 border-r-0 outline-0 w-7/12 h-10  dark:text-white"
         />
 
         <div className="rounded-md rounded-l-none border border-gray-700 border-l-0 outline-0 flex justify-center pr-2">
@@ -137,12 +137,12 @@ function SearchBar() {
       </form>
 
       {showDropdown && results.length > 0 && (
-        <ul className="absolute bg-white border border-gray-300 rounded-md w-9/12 overflow-auto mt-30 h-80 z-50 shadow-lg">
+        <ul className="absolute bg-white border border-gray-300 rounded-md w-9/12 overflow-auto mt-30 h-80 z-50 shadow-lg dark:bg-black">
           {results.map((item) => (
             <li
               key={`${item.type}-${item.id}`}
               onClick={() => handleSelect(item)}
-              className="px-4 py-2 hover:bg-blue-100 cursor-pointer flex items-center gap-2"
+              className="px-4 py-2 hover:bg-blue-100 cursor-pointer flex items-center gap-2 dark:hover:bg-[#1b1b1b]"
             >
               {item.poster_path || item.profile_path ? (
                 <img
@@ -154,7 +154,7 @@ function SearchBar() {
                 <div className="w-8 h-12 bg-gray-300 rounded" />
               )}
               <div>
-                <p className="text-sm font-medium">{item.title || item.name}</p>
+                <p className="text-sm font-medium dark:text-white">{item.title || item.name}</p>
                 <p className="text-xs text-gray-500 capitalize">{item.type}</p>
               </div>
             </li>

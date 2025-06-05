@@ -5,7 +5,7 @@ import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import SearchBar from './SearchBar';
 import UserDropdown from './UserDropdown';
-
+import ThemeToggleButton from './ThemeToggleButton';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user] = useAuthState(auth);
@@ -24,7 +24,7 @@ const Navbar = () => {
       console.error('Logout error:', error);
     }
   };
-  const hideSearchBarRoutes = ["/login", "/signup", "/profile", "/profile-setup","/chat"];
+  const hideSearchBarRoutes = ["/login", "/signup", "/profile", "/profile-setup","/chat","/about"];
   const shouldHideSearchBar = hideSearchBarRoutes.some(route =>
   location.pathname.startsWith(route)
   );
@@ -44,6 +44,7 @@ const Navbar = () => {
             <NavLink to="/series" className={getLinkClass}>Series</NavLink>
             <NavLink to="/about" className={getLinkClass}>About</NavLink>
             <Link to="/chat" className={mobileLinkClass} onClick={toggleMenu}><span className="text-pink-500">FlickChat</span></Link>
+              <ThemeToggleButton />
 
            {user ? (
               <UserDropdown user={user} onLogout={handleLogout} />
@@ -92,11 +93,12 @@ const Navbar = () => {
       >
         <div className="flex flex-col h-full justify-between py-6 px-4">
           <div className="space-y-6">
-            <NavLink to="/" className={mobileLinkClass} onClick={toggleMenu}>Home</NavLink>
+            <ThemeToggleButton className="mr-50"/>
+
+             <NavLink to="/" className={mobileLinkClass} onClick={toggleMenu}>Home</NavLink>
             <NavLink to="/movies" className={mobileLinkClass} onClick={toggleMenu}>Movies</NavLink>
             <NavLink to="/series" className={mobileLinkClass} onClick={toggleMenu}>Series</NavLink>
             <NavLink to="/about" className={mobileLinkClass} onClick={toggleMenu}>About</NavLink>
-
             {user && (
               <div className="border-t border-gray-300 dark:border-gray-700 pt-4 mt-4 space-y-3">
               <Link to="/chat" className={mobileLinkClass} onClick={toggleMenu}><span className="text-pink-500">FlickChat</span></Link>

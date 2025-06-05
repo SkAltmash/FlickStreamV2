@@ -1,73 +1,120 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SearchResultCard from '../components/SearchResultCard';
+import SkeletonCard from '../components/SkeletonCard';
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
-import Loader from '../components/Loader';
+
 function SearchResults() {
   const location = useLocation();
   const navigate = useNavigate();
+
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-  // Extract query and filter from URL
   const queryParams = new URLSearchParams(location.search);
   const query = queryParams.get('query');
   const filter = queryParams.get('filter') || 'all';
+  const genre = queryParams.get('genre');
+  const type = queryParams.get('type') || 'multi';
 
+  // Reset when search params change
   useEffect(() => {
-    if (!query) return;
+    setResults([]);
+    setPage(1);
+    setHasMore(true);
+  }, [location.search]);
 
+  // Load data
+  useEffect(() => {
     async function fetchResults() {
+      setLoading(true);
       try {
-        setLoading(true);
-        const encodedTerm = encodeURIComponent(query);
-        let results = [];
+        let newResults = [];
+        let url = '';
 
-        if (filter === 'all' || filter === 'movie') {
-          const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodedTerm}`);
+        if (query) {
+          const encoded = encodeURIComponent(query);
+          if (filter === 'all' || filter === 'movie') {
+            url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encoded}&page=${page}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            newResults.push(...data.results.map((r) => ({ ...r, type: 'movie' })));
+            setHasMore(data.page < data.total_pages);
+          }
+
+          if (filter === 'all' || filter === 'series') {
+            url = `https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encoded}&page=${page}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            newResults.push(...data.results.map((r) => ({ ...r, type: 'series' })));
+            setHasMore(data.page < data.total_pages);
+          }
+
+          if (filter === 'all' || filter === 'cast') {
+            url = `https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encoded}&page=${page}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            newResults.push(...data.results.map((r) => ({ ...r, type: 'cast' })));
+            setHasMore(data.page < data.total_pages);
+          }
+        } else if (genre) {
+          url = `https://api.themoviedb.org/3/discover/${type}?api_key=${API_KEY}&with_genres=${genre}&page=${page}`;
+          const res = await fetch(url);
           const data = await res.json();
-          results.push(...data.results.map(item => ({ ...item, type: 'movie' })));
+          newResults.push(
+            ...data.results.map((item) => ({
+              ...item,
+              type: type === 'tv' ? 'series' : 'movie',
+            }))
+          );
+          setHasMore(data.page < data.total_pages);
         }
 
-        if (filter === 'all' || filter === 'series') {
-          const res = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodedTerm}`);
-          const data = await res.json();
-          results.push(...data.results.map(item => ({ ...item, type: 'series' })));
-        }
-
-        if (filter === 'all' || filter === 'cast') {
-          const res = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encodedTerm}`);
-          const data = await res.json();
-          results.push(...data.results.map(item => ({ ...item, type: 'cast' })));
-        }
-
-        results.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-        setResults(results);
+        setResults((prev) => [...prev, ...newResults]);
       } catch (err) {
-        console.error('Error fetching search results:', err);
-        setResults([]);
+        console.error('Failed to fetch search results:', err);
       } finally {
         setLoading(false);
       }
     }
 
     fetchResults();
-  }, [query, filter]);
+  }, [page, query, filter, genre, type]);
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Search Results for "{query}"</h2>
-      {loading ? (
-        <Loader />
-      ) : results.length === 0 ? (
-        <p>No results found.</p>
-      ) : (
-      <div className="flex flex-wrap gap-2 justify-center sm:gap-4">
-          {results.map(item => (
-            <SearchResultCard key={`${item.type}-${item.id}`} item={item} />
-          ))}
+
+    <div className="p-6 dark:bg-black dark:text-gray-200 min-h-screen">
+      <h2 className="text-xl font-semibold mb-2">
+        {query
+          ? `Search Results for "${query}"`
+          : genre
+          ? `Genre-Based Results (${genre})`
+          : 'Search Results'}
+      </h2>
+
+      {results.length === 0 && loading && <SkeletonCard/> }
+      {results.length === 0 && !loading && <p>No results found.</p>}
+
+      <div className="flex flex-wrap gap-3 justify-center mb-4">
+        {results.map((item) => (
+          <SearchResultCard key={`${item.type}-${item.id}-${item.name || item.title}`} item={item} />
+        ))}
+      </div>
+
+      {hasMore && !loading && (
+        <div className="text-center mt-4">
+          <button
+            onClick={() => setPage((prev) => prev + 1)}
+            className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Load More
+          </button>
         </div>
       )}
+
+      {loading && <SkeletonCard />}
     </div>
   );
 }

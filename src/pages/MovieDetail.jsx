@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { Link } from 'react-router-dom';
-import Loader from '../components/Loader';
+import DetailsLoader from '../DetailsLoader';
 import FavoriteButton from '../components/FavoriteButton';
 import WatchlistButton from '../components/WatchlistButton';
 import CommentSection from '../components/CommentSection';
@@ -36,7 +36,7 @@ const MovieDetail = () => {
     fetchMovie();
   }, [id]);
 
-  if (loading) return <Loader></Loader>;
+  if (loading) return <DetailsLoader />
   if (!movie) return <div className="text-center mt-10">Movie not found.</div>;
 
   const trailer = movie.videos?.results?.find(
@@ -46,7 +46,7 @@ const MovieDetail = () => {
 
   return (
     <>
-   <div className="bg-white text-black min-h-screen py-6 flex flex-col items-center mt-4">
+   <div className="bg-white text-black min-h-screen py-6 flex flex-col items-center mt-4 dark:bg-black dark:text-white">
         {/* Video or Backdrop with Effect */}
       <div className="relative w-full max-w-[600px] aspect-video rounded-md overflow-hidden shadow-md mb-8">
     <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/50 pointer-events-none" />
@@ -79,7 +79,7 @@ const MovieDetail = () => {
           {/* Info */}
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
-            <p className="text-gray-700 mb-1">
+            <p className="text-gray-700 mb-1 dark:text-gray-200">
               {movie.release_date} • {movie.runtime} min
             </p>
 
@@ -105,19 +105,20 @@ const MovieDetail = () => {
             )}
 
             {/* Genres */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {movie.genres?.map((genre) => (
-                <span
-                  key={genre.id}
-                  className="bg-gray-900 text-white px-2 py-1 text-xs rounded"
-                >
-                  {genre.name}
-                </span>
-              ))}
-            </div>
-
+           <div className="flex flex-wrap gap-2 mb-4">
+  {movie.genres?.map((genre) => (
+    <Link
+      to={`/search?genre=${genre.id}&type=movie`} // or `tv` depending on the current media type
+      key={genre.id}
+    >
+      <span className="cursor-pointer bg-gray-900 text-white px-2 py-1 text-xs rounded dark:bg-gray-200 dark:text-gray-950 hover:opacity-80 transition">
+        {genre.name}
+      </span>
+    </Link>
+  ))}
+</div>
             {/* Overview */}
-            <p className="text-gray-800 leading-relaxed">{movie.overview}</p>
+            <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{movie.overview}</p>
           </div>
         </div>
       </div>
@@ -139,13 +140,13 @@ const MovieDetail = () => {
           className="w-full h-full object-cover"
         />
       ) : (
-        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
+        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-600 dark:text-gray-200">
           No Image
         </div>
       )}
     </div>
-    <p className="text-sm font-medium text-gray-800 truncate">{cast.name}</p>
-    <p className="text-xs text-gray-500 truncate">{cast.character}</p>
+    <p className="text-sm font-medium text-gray-800 truncate  dark:text-gray-200">{cast.name}</p>
+    <p className="text-xs text-gray-500 truncate  dark:text-gray-50">{cast.character}</p>
   </Link>
 ))}
 
@@ -157,10 +158,10 @@ const MovieDetail = () => {
 <CommentSection mediaId={movie.id.toString()} />
 
 {/* Similar Movies Section */}
-<div className=" mx-auto mt-10 px-4">
+<div className=" mx-auto mt-10 px-4 bg-white dark:bg-black dark:text-white">
   <h2 className="text-2xl font-semibold mb-4">Similar Movies</h2>
   {movie.similar?.results?.length > 0 ? (
-    <div className="flex flex-wrap gap-4 justify-center">
+    <div className="flex flex-wrap gap-4 justify-center mb-10">
       {movie.similar.results.map((m) => (
         <MovieCard key={m.id} movie={m} />
       ))}

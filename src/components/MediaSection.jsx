@@ -68,16 +68,15 @@ const MediaSection = ({ title, fetchUrl }) => {
         &#8249;
       </button>
 
-      {/* Scroll container */}
-      <div
-        ref={scrollRef}
-        className="flex overflow-x-scroll gap-4 scrollbar-hide scroll-smooth py-2"
-        style={{ scrollBehavior: 'smooth' }}
-      >
-        {items.map((item) => (
-          <MovieCard key={item.id} movie={item} />
-        ))}
-      </div>
+  <div
+  ref={scrollRef}
+  className="flex overflow-x-scroll gap-4 scrollbar-hide scroll-smooth py-2 bg-white text-black dark:bg-black dark:text-white"
+>
+  {items.map((item) => (
+    <MovieCard key={item.id} movie={item} />
+  ))}
+</div>
+
 
       {/* Right button */}
       <button

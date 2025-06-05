@@ -57,7 +57,7 @@ const CommentSection = ({ mediaId }) => {
   };
 
   return (
-    <div className="mt-8 flex flex-col py-4 px-4 justify-center">
+    <div className="mt-8 flex flex-col py-4 px-4 justify-center dark:bg-black dark:text-gray-200">
       <h2 className="text-xl md:text-2xl font-bold mb-4 px-4">Comments</h2>
 
       {user ? (
@@ -155,7 +155,7 @@ const CommentWithReplies = ({ mediaId, comment, currentUser }) => {
   };
 
   return (
-    <div className="p-3 rounded bg-white shadow text-sm md:text-base">
+    <div className="p-3 rounded bg-white shadow text-sm md:text-base dark:bg-black dark:text-gray-200">
       <div className="flex items-center gap-2 mb-1">
         <img
           src={comment.userPhoto}
@@ -208,7 +208,7 @@ const CommentWithReplies = ({ mediaId, comment, currentUser }) => {
       )}
 
       {/* Replies */}
-      <div className="ml-10 mt-4 space-y-2">
+      <div className="ml-10 mt-4 space-y-2 dark:bg-black dark:text-gray-200">
         {replies.map((r) => (
           <div key={r.id} className="flex items-start gap-2">
             <img
@@ -216,10 +216,10 @@ const CommentWithReplies = ({ mediaId, comment, currentUser }) => {
               alt={r.userName}
               className="w-6 h-6 rounded-full mt-1"
             />
-            <div className="bg-gray-100 rounded p-2 flex-1 text-sm md:text-base break-words">
+            <div className="rounded p-2 flex-1 text-sm md:text-base break-words">
               <div className="flex justify-between">
                 <span className="font-semibold">{r.userName}</span>
-                <span className="text-xs text-gray-500 ml-2">
+                <span className="text-xs text-gray-500 ml-2 dark:text-white">
                   {r.timestamp?.toDate
                     ? r.timestamp.toDate().toLocaleString()
                     : new Date(r.timestamp).toLocaleString()}

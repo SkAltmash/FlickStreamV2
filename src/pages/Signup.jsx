@@ -39,8 +39,8 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex items-center justify-center px-4 bg-gray-100">
-      <div className="bg-white shadow-md rounded p-6 w-full max-w-md">
+    <div className="p-6 max-w-md mx-auto mt-20 mb-20 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 shadow rounded transition-colors duration-300">
+      <div className="bg-white shadow-md rounded p-6 w-full max-w-md dark:bg-gray-900">
         <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
 
         {errorMsg && <div className="text-red-600 text-sm mb-4">{errorMsg}</div>}

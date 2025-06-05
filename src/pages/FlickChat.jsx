@@ -236,8 +236,8 @@ const [unreadStatus, setUnreadStatus] = useState({});
     return `Last seen ${formatDistanceToNow(seenTime, { addSuffix: true })}`;
   };
 
-  return (
-    <div className="flex flex-col h-screen overflow-hidden dark:bg-gray-950">
+ return (
+    <div className="flex flex-col h-screen overflow-hidden dark:bg-gray-red-900">
       <nav className="flex justify-between items-center text-white px-6 py-3 shadow bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
         <h1 className="text-xl font-semibold">FlickChat</h1>
         <div className="flex items-center space-x-3">
@@ -259,7 +259,8 @@ const [unreadStatus, setUnreadStatus] = useState({});
       </nav>
 
       <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
-        <aside className={`md:w-1/3 w-full h-screen ${selectedUser ? 'hidden md:block' : 'block'} bg-gray-100 dark:bg-gray-900 px-3 py-4 border-r overflow-y-auto`}>
+        {/* ✅ Sidebar with scroll fix */}
+        <aside className={`md:w-1/3 w-full h-full max-h-screen ${selectedUser ? 'hidden md:block' : 'block'} bg-gray-100 dark:bg-gray-900 px-3 py-4 border-r overflow-y-auto`}>
           <h2 className="text-xl font-bold mb-4 dark:text-white">Chats</h2>
           <input
             type="text"
@@ -286,12 +287,12 @@ const [unreadStatus, setUnreadStatus] = useState({});
                       className="w-10 h-10 rounded-full object-cover"
                     />
                     <div className="flex flex-col">
-<span className="font-medium dark:text-white flex items-center gap-2">
-  {user.username}
-  {unreadStatus[user.uid] && (
-    <span className="w-2 h-2 rounded-full bg-red-500 inline-block animate-pulse"></span>
-  )}
-</span>
+                      <span className="font-medium dark:text-white flex items-center gap-2">
+                        {user.username}
+                        {unreadStatus[user.uid] && (
+                          <span className="w-2 h-2 rounded-full bg-red-500 inline-block animate-pulse"></span>
+                        )}
+                      </span>
                       <span className="text-xs text-gray-500 dark:text-gray-400">{getUserStatus(user.lastSeen)}</span>
                     </div>
                   </div>
@@ -300,7 +301,7 @@ const [unreadStatus, setUnreadStatus] = useState({});
           </ul>
         </aside>
 
-        {/* Main Chat */}
+        {/* ✅ Main Chat with scroll & height fix */}
         <main className="flex-1 flex flex-col overflow-hidden">
           <header className="bg-gray-200 dark:bg-gray-800 px-3 py-4 border-b flex items-center gap-4">
             {selectedUser && (
@@ -326,7 +327,10 @@ const [unreadStatus, setUnreadStatus] = useState({});
             )}
           </header>
 
-          <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 bg-white dark:bg-gray-950 min-h-0">
+          <div
+            className="flex-1 overflow-y-auto px-3 py-4 space-y-3 bg-white dark:bg-gray-950"
+            style={{ minHeight: 0 }}
+          >
             {!selectedUser ? (
               <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400 text-lg font-medium">
                 Select a user to start chatting
@@ -341,16 +345,13 @@ const [unreadStatus, setUnreadStatus] = useState({});
                       msg.sender === currentUser?.uid ? 'ml-auto flex-row-reverse space-x-reverse' : ''
                     }`}
                   >
-                    <img
-                      src={msg.avatar}
-                      alt="Avatar"
-                      className="w-6 h-6 rounded-full object-cover"
-                    />
-                    <div className={`relative p-3 rounded-lg text-sm break-words ${
-                      msg.sender === currentUser?.uid
-                        ? 'bg-gradient-to-r from-gray-500 to-pink-400 text-black'
-                        : 'bg-gradient-to-r from-orange-400 to-pink-900 text-white'
-                    }`}>
+                    <div
+                      className={`relative p-3 rounded-lg text-sm break-words ${
+                        msg.sender === currentUser?.uid
+                          ? 'bg-gradient-to-r from-gray-500 to-pink-400 text-black'
+                          : 'bg-gradient-to-r from-orange-400 to-pink-900 text-white'
+                      }`}
+                    >
                       <div className="font-semibold text-xs mb-1">{msg.username}</div>
                       {msg.deleted ? (
                         <div className="italic text-gray-900 dark:text-gray-300">This message was deleted</div>

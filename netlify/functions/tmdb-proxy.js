@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 export async function handler(event) {
   const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
   const baseUrl = 'https://api.themoviedb.org/3';
@@ -22,13 +20,12 @@ export async function handler(event) {
   const url = `${baseUrl}/${endpoint}?api_key=${API_KEY}${query ? '&' + query : ''}`;
 
   try {
-    const tmdbRes = await fetch(url);
-    const data = await tmdbRes.json();
+    const res = await fetch(url);
+    const data = await res.json();
+
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify(data),
     };
   } catch (err) {

@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import FavoriteButton from './FavoriteButton';
 
-const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
 const HeroSection = () => {
   const [trending, setTrending] = useState([]);
@@ -15,7 +14,8 @@ const HeroSection = () => {
       try {
         setLoading(true);
         const res = await fetch(
-          `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}`
+          '/.netlify/functions/tmdb-proxy?endpoint=trending/all/day'
+
         );
         const data = await res.json();
         setTrending(data.results || []);

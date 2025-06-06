@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import MovieCard from './MovieCard';
 
-const API_KEY = 'd1becbefc947f6d6af137051548adf7f'; // Or from env
 
 const SCROLL_AMOUNT = 300;
 
@@ -15,8 +14,9 @@ const MediaSection = ({ title, fetchUrl }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`${fetchUrl}?api_key=${API_KEY}&language=en-US&page=1`);
-      const data = await res.json();
+const res = await fetch(
+  '/.netlify/functions/tmdb-proxy?endpoint=trending/all/day&language=en-US&page=1'
+);      const data = await res.json();
       setItems(data.results);
     };
     fetchData();

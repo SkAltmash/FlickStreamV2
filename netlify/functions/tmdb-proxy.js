@@ -1,9 +1,9 @@
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
-exports.handler = async (event) => {
+export async function handler(event) {
   const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
   const baseUrl = 'https://api.themoviedb.org/3';
-  
+
   const params = event.queryStringParameters || {};
   const endpoint = params.endpoint;
 
@@ -14,7 +14,6 @@ exports.handler = async (event) => {
     };
   }
 
-  // Reconstruct query string excluding endpoint
   const query = Object.entries(params)
     .filter(([key]) => key !== 'endpoint')
     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
@@ -28,7 +27,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*', // if you want to enable CORS
+        'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify(data),
     };
@@ -39,4 +38,4 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: 'TMDB fetch failed', details: err.message }),
     };
   }
-};
+}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import FavoriteButton from './FavoriteButton';
+
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
 const HeroSection = () => {
@@ -54,7 +55,7 @@ const HeroSection = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96 bg-white text-black dark:text-white dark:ba-black">
+      <div className="flex justify-center items-center h-96 bg-white text-black dark:text-white dark:bg-black">
         Loading...
       </div>
     );
@@ -75,29 +76,24 @@ const HeroSection = () => {
   const poster = item.poster_path;
 
   return (
-    <section className="relative w-full h-[480px] md:h-[600px] select-none overflow-hidden mt-10">
+    <section className="relative w-full h-[480px] md:h-[600px] select-none overflow-hidden mt-10 animate-fade-in">
       {/* Background Image */}
       <div className="absolute inset-0">
-        {/* Desktop backdrop */}
         <img
           src={`https://image.tmdb.org/t/p/original${backdrop}`}
           alt={title}
           className="hidden md:block w-full h-full object-cover brightness-75 transition-opacity duration-700"
-          key={backdrop}
         />
-        {/* Mobile poster */}
         <img
           src={`https://image.tmdb.org/t/p/original${poster}`}
           alt={title}
           className="block md:hidden w-full h-full object-cover brightness-75 transition-opacity duration-700"
-          key={poster}
         />
-        {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent" />
       </div>
 
-      {/* Left/Right Buttons always visible on all screen sizes */}
+      {/* Navigation Buttons */}
       <button
         onClick={prevSlide}
         aria-label="Previous"
@@ -114,19 +110,9 @@ const HeroSection = () => {
         <FaChevronRight size={18} className="md:text-xl" />
       </button>
 
-      {/* Content container */}
-      <div
-        className="
-          relative z-10 max-w-5xl mx-auto px-6 select-text
-          h-full
-          flex flex-col justify-end md:justify-center
-          pb-20 md:pb-12
-          text-white
-        "
-      >
-        {/* On desktop: content left aligned */}
-        {/* On mobile: content at bottom center */}
-        <div className="md:max-w-3xl md:text-left text-center">
+      {/* Content */}
+      <div className="relative z-10 max-w-5xl mx-auto px-6 h-full flex flex-col justify-end md:justify-center pb-20 md:pb-12 text-white">
+        <div className="md:max-w-3xl md:text-left text-center animate-slide-up">
           <h1 className="text-3xl md:text-5xl font-extrabold mb-4 drop-shadow-lg">{title}</h1>
           <p className="hidden md:block max-w-3xl text-lg md:text-xl mb-6 line-clamp-3 drop-shadow-md">
             {overview}
@@ -138,18 +124,20 @@ const HeroSection = () => {
             >
               Watch Now
             </a>
-            
           </div>
         </div>
       </div>
 
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
+      {/* Pagination Dots */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
         {trending.map((_, idx) => (
           <button
             key={idx}
             onClick={() => goToSlide(idx)}
-            className={`w-3 h-3 rounded-full transition-colors ${
-              idx === currentIndex ? 'bg-red-600' : 'bg-white/60 hover:bg-white'
+            className={`rounded-full transition-colors animate-fade-up ${
+              idx === currentIndex
+                ? 'bg-red-600 w-2 h-2 md:w-3 md:h-3'
+                : 'bg-white/60 hover:bg-white w-2 h-2 md:w-3 md:h-3'
             }`}
             aria-label={`Go to slide ${idx + 1}`}
           />

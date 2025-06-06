@@ -12,7 +12,6 @@ import { FaShare } from 'react-icons/fa';
 import { db } from '../firebase';
 
 
-const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
 const SeriesDetail = () => {
   const { id } = useParams();
@@ -25,8 +24,8 @@ const SeriesDetail = () => {
     async function fetchMovie() {
       try {
         const res = await fetch(
-          `https://api.themoviedb.org/3/tv/${id}?api_key=${API_KEY}&append_to_response=videos,credits,similar`
-        );
+  `/.netlify/functions/tmdb-proxy?endpoint=tv/${id}&append_to_response=videos,credits,similar`
+);
         const data = await res.json();
         setMovie(data);
         setLoading(false);

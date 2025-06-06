@@ -296,7 +296,6 @@ const FlickChat = () => {
     // fallback alphabetical
     return (a.username || '').localeCompare(b.username || '');
   });
-const totalUnread = Object.values(unreadStatus).filter(Boolean).length;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden dark:bg-gray-red-900">
@@ -417,14 +416,7 @@ const totalUnread = Object.values(unreadStatus).filter(Boolean).length;
                     >
                       <div className="font-semibold text-xs mb-1 flex items-center gap-1">
                         {msg.username}
-                        {/* Blue tick if message sent by current user and read by recipient */}
-                        {msg.sender === currentUser?.uid && msg.readBy?.includes(selectedUser?.uid) && (
-                          <FontAwesomeIcon
-                            icon={faCheckDouble}
-                            className="text-blue-500"
-                            title="Read"
-                          />
-                        )}
+                       
                       </div>
 
                       {msg.deleted ? (
@@ -435,7 +427,11 @@ const totalUnread = Object.values(unreadStatus).filter(Boolean).length;
 
                       {msg.shared && (
                         <>
-                          <div className="bg-gray-200 dark:bg-gray-700 h-60 w-full rounded-2xl mt-2">
+                      {msg.deleted ? (
+                           <div></div>
+                      ) : (
+                       <>
+                       <div className="bg-gray-200 dark:bg-gray-700 h-60 w-full rounded-2xl mt-2">
                             <img
                               src={msg.shared.posterUrl}
                               alt=""
@@ -448,12 +444,23 @@ const totalUnread = Object.values(unreadStatus).filter(Boolean).length;
                           >
                             Watch Now
                           </button>
+                       </>
+
+                      )}
+                          
                         </>
                       )}
 
                       {msg.timestamp && (
-                        <div className="text-[10px] mt-1 opacity-70">
+                        <div className="text-[10px] mt-1 opacity-70 w-full flex justify-end">
                           {formatDistanceToNow(new Date(msg.timestamp.seconds * 1000), { addSuffix: true })}
+                           {msg.sender === currentUser?.uid && msg.readBy?.includes(selectedUser?.uid) && (
+                          <FontAwesomeIcon
+                            icon={faCheckDouble}
+                            className="text-blue-600 ml-5"
+                            title="Read"
+                          />
+                        )}
                         </div>
                       )}
 

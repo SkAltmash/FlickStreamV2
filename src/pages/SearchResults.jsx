@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SearchResultCard from '../components/SearchResultCard';
 import SkeletonCard from '../components/SkeletonCard';
-const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
 function SearchResults() {
   const location = useLocation();
@@ -37,7 +36,7 @@ function SearchResults() {
         if (query) {
           const encoded = encodeURIComponent(query);
           if (filter === 'all' || filter === 'movie') {
-            url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encoded}&page=${page}`;
+             url = `/.netlify/functions/tmdb-proxy?endpoint=search/movie&query=${encoded}&page=${page}`;
             const res = await fetch(url);
             const data = await res.json();
             newResults.push(...data.results.map((r) => ({ ...r, type: 'movie' })));
@@ -45,7 +44,7 @@ function SearchResults() {
           }
 
           if (filter === 'all' || filter === 'series') {
-            url = `https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encoded}&page=${page}`;
+             url = `/.netlify/functions/tmdb-proxy?endpoint=search/tv&query=${encoded}&page=${page}`;
             const res = await fetch(url);
             const data = await res.json();
             newResults.push(...data.results.map((r) => ({ ...r, type: 'series' })));
@@ -53,7 +52,7 @@ function SearchResults() {
           }
 
           if (filter === 'all' || filter === 'cast') {
-            url = `https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encoded}&page=${page}`;
+             url = `/.netlify/functions/tmdb-proxy?endpoint=search/person&query=${encoded}&page=${page}`;
             const res = await fetch(url);
             const data = await res.json();
             newResults.push(...data.results.map((r) => ({ ...r, type: 'cast' })));

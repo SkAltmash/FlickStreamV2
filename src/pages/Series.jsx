@@ -5,13 +5,11 @@ const Series = () => {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
   const fetchMovies = async (pageNum) => {
     setLoading(true);
-    const res = await fetch(
-          `https://api.themoviedb.org/3/tv/on_the_air?api_key=d1becbefc947f6d6af137051548adf7f&language=en-US&page=${pageNum}`
-    );
+  const res = await fetch(`/.netlify/functions/tmdb-proxy?endpoint=tv/on_the_air&page=${pageNum}`);
+
     const data = await res.json();
     setMovies((prev) => [...prev, ...data.results]);
     setLoading(false);

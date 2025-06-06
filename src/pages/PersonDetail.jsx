@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import PersonDetailsSkeleton from '../components/PersonDetailsSkeleton';
-const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
 const PersonDetail = () => {
   const { id } = useParams();
@@ -15,10 +14,11 @@ const PersonDetail = () => {
   useEffect(() => {
     async function fetchPerson() {
       try {
-        const [res1, res2] = await Promise.all([
-          fetch(`https://api.themoviedb.org/3/person/${id}?api_key=${API_KEY}`),
-          fetch(`https://api.themoviedb.org/3/person/${id}/combined_credits?api_key=${API_KEY}`)
-        ]);
+      const [res1, res2] = await Promise.all([
+  fetch(`/.netlify/functions/tmdb-proxy?endpoint=person/${id}`),
+  fetch(`/.netlify/functions/tmdb-proxy?endpoint=person/${id}/combined_credits`)
+]);
+
         const personData = await res1.json();
         const creditsData = await res2.json();
         setPerson(personData);

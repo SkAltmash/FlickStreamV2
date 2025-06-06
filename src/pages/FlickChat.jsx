@@ -13,11 +13,13 @@ import {
   updateDoc,
   limit,
 } from 'firebase/firestore';
+import toast from 'react-hot-toast';
+
 import { useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { formatDistanceToNow } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faArrowLeft, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
 
 const FlickChat = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -27,13 +29,15 @@ const FlickChat = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleteId, setShowDeleteId] = useState(null);
-  const [toast, setToast] = useState(null);
+  const [localToast, setLocalToast] = useState(null);
   const [sharedMovieInfo, setSharedMovieInfo] = useState(null);
   const messagesEndRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
-const [unreadStatus, setUnreadStatus] = useState({});
+  const [unreadStatus, setUnreadStatus] = useState({});
+  const lastToastMsgIdRef = useRef({}); // For toast notification without opening chat
 
+  // Auth listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user && user.uid) {
@@ -44,7 +48,6 @@ const [unreadStatus, setUnreadStatus] = useState({});
             username: user.displayName || 'Anonymous',
             photoURL: user.photoURL || null,
             createdAt: serverTimestamp(),
-            readBy: [],
           },
           { merge: true }
         );
@@ -55,6 +58,7 @@ const [unreadStatus, setUnreadStatus] = useState({});
     return unsubscribe;
   }, []);
 
+  // Fetch all users except current user
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -73,42 +77,69 @@ const [unreadStatus, setUnreadStatus] = useState({});
     }
   }, [currentUser]);
 
+  // Update current user lastSeen timestamp every minute and on window focus
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userRef = doc(db, 'users', user.uid);
-        const updateLastSeen = () => {
-          updateDoc(userRef, {
-            lastSeen: serverTimestamp(),
-          });
-        };
-        updateLastSeen();
-        const interval = setInterval(updateLastSeen, 60000);
-        window.addEventListener('focus', updateLastSeen);
-        return () => {
-          clearInterval(interval);
-          window.removeEventListener('focus', updateLastSeen);
-        };
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+    if (!currentUser) return;
 
+    const userRef = doc(db, 'users', currentUser.uid);
+
+    const updateLastSeen = () => {
+      updateDoc(userRef, {
+        lastSeen: serverTimestamp(),
+      }).catch(console.error);
+    };
+
+    updateLastSeen();
+
+    const interval = setInterval(updateLastSeen, 60000);
+    window.addEventListener('focus', updateLastSeen);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', updateLastSeen);
+    };
+  }, [currentUser]);
+
+  // Subscribe to messages for selected user
   useEffect(() => {
     if (!selectedUser || !currentUser) return;
+
     const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
     const messagesRef = collection(db, 'chats', chatId, 'messages');
     const q = query(messagesRef, orderBy('timestamp'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMessages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+    // Listen for messages realtime
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setMessages(msgs);
+
+      // Mark unread messages as read if current user is recipient and message is unread
+      const unreadMessages = msgs.filter(
+        (msg) =>
+          msg.sender !== currentUser.uid &&
+          (!msg.readBy || !msg.readBy.includes(currentUser.uid))
+      );
+
+      // Update readBy field for unread messages
+      if (unreadMessages.length > 0) {
+        const batchPromises = unreadMessages.map((msg) =>
+          updateDoc(doc(db, 'chats', chatId, 'messages', msg.id), {
+            readBy: [...(msg.readBy || []), currentUser.uid],
+          }).catch(console.error)
+        );
+        await Promise.all(batchPromises);
+      }
     });
+
     return unsubscribe;
   }, [selectedUser, currentUser]);
 
+  // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Handle sharing movie/series via URL params (existing)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const shareId = params.get('shareId');
@@ -123,30 +154,8 @@ const [unreadStatus, setUnreadStatus] = useState({});
       setSharedMovieInfo({ to, text, sentKey, shareId, type });
     }
   }, [location.search, currentUser, users]);
-   useEffect(() => {
-  if (!currentUser) return;
 
-  const unsubscribes = [];
-
-  users.forEach((user) => {
-    const chatId = [currentUser.uid, user.uid].sort().join('_');
-    const msgRef = collection(db, 'chats', chatId, 'messages');
-    const q = query(msgRef, orderBy('timestamp', 'desc'), limit(1));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        const msg = snapshot.docs[0].data();
-        const isUnread = !msg.readBy?.includes(currentUser.uid) && msg.sender !== currentUser.uid;
-        setUnreadStatus(prev => ({ ...prev, [user.uid]: isUnread }));
-      }
-    });
-
-    unsubscribes.push(unsubscribe);
-  });
-
-  return () => unsubscribes.forEach(unsub => unsub());
-}, [users, currentUser]);
-
+  // Auto-send shared message once on chat open
   useEffect(() => {
     if (
       sharedMovieInfo &&
@@ -169,17 +178,59 @@ const [unreadStatus, setUnreadStatus] = useState({});
           shared: {
             shareId: sharedMovieInfo.shareId,
             type: sharedMovieInfo.type,
+            posterUrl: sharedMovieInfo.posterUrl || '', // Add posterUrl if available
           },
+          readBy: [currentUser.uid], // Mark as read by sender immediately
         });
 
         localStorage.setItem(sharedMovieInfo.sentKey, 'true');
-        setToast('Shared successfully!');
+        setLocalToast('Shared successfully!');
         setSharedMovieInfo(null);
-        setTimeout(() => setToast(null), 3000);
+        setTimeout(() => setLocalToast(null), 3000);
       };
       autoSend();
     }
-  }, [sharedMovieInfo, selectedUser]);
+  }, [sharedMovieInfo, selectedUser, message, currentUser]);
+
+  // Detect unread messages per user for sidebar and sort users with unread on top
+  useEffect(() => {
+    if (!currentUser || users.length === 0) return;
+
+    const unsubscribes = [];
+    setUnreadStatus({});
+
+    users.forEach((user) => {
+      const chatId = [currentUser.uid, user.uid].sort().join('_');
+      const msgRef = collection(db, 'chats', chatId, 'messages');
+      const q = query(msgRef, orderBy('timestamp', 'desc'), limit(1));
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const msgDoc = snapshot.docs[0];
+          const msg = msgDoc.data();
+          // Check if message is unread for current user
+          const isUnread = msg.sender !== currentUser.uid && !(msg.readBy || []).includes(currentUser.uid);
+          setUnreadStatus(prev => ({ ...prev, [user.uid]: isUnread }));
+
+          // Toast for new unread message if not already shown and chat is not open
+          if (
+            isUnread &&
+            lastToastMsgIdRef.current[user.uid] !== msgDoc.id &&
+            (!selectedUser || selectedUser.uid !== user.uid)
+          ) {
+            toast.success(`📩 New message from ${user.username || 'Someone'}`);
+            lastToastMsgIdRef.current[user.uid] = msgDoc.id;
+          }
+        } else {
+          setUnreadStatus(prev => ({ ...prev, [user.uid]: false }));
+        }
+      });
+
+      unsubscribes.push(unsubscribe);
+    });
+
+    return () => unsubscribes.forEach(unsub => unsub());
+  }, [users, currentUser, selectedUser]);
 
   const handleSend = async () => {
     if (!message.trim() || !currentUser || !selectedUser) return;
@@ -195,6 +246,7 @@ const [unreadStatus, setUnreadStatus] = useState({});
       avatar: currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y',
       text: message,
       timestamp: serverTimestamp(),
+      readBy: [currentUser.uid], // Mark sent message as read by sender
     });
 
     setMessage('');
@@ -236,7 +288,17 @@ const [unreadStatus, setUnreadStatus] = useState({});
     return `Last seen ${formatDistanceToNow(seenTime, { addSuffix: true })}`;
   };
 
- return (
+  // Sort users: unread on top, then by username
+  const sortedUsers = [...users].sort((a, b) => {
+    const aUnread = unreadStatus[a.uid] ? 1 : 0;
+    const bUnread = unreadStatus[b.uid] ? 1 : 0;
+    if (aUnread !== bUnread) return bUnread - aUnread;
+    // fallback alphabetical
+    return (a.username || '').localeCompare(b.username || '');
+  });
+const totalUnread = Object.values(unreadStatus).filter(Boolean).length;
+
+  return (
     <div className="flex flex-col h-screen overflow-hidden dark:bg-gray-red-900">
       <nav className="flex justify-between items-center text-white px-6 py-3 shadow bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
         <h1 className="text-xl font-semibold">FlickChat</h1>
@@ -259,7 +321,7 @@ const [unreadStatus, setUnreadStatus] = useState({});
       </nav>
 
       <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
-        {/* ✅ Sidebar with scroll fix */}
+        {/* Sidebar */}
         <aside className={`md:w-1/3 w-full h-full max-h-screen ${selectedUser ? 'hidden md:block' : 'block'} bg-gray-100 dark:bg-gray-900 px-3 py-4 border-r overflow-y-auto`}>
           <h2 className="text-xl font-bold mb-4 dark:text-white">Chats</h2>
           <input
@@ -270,14 +332,14 @@ const [unreadStatus, setUnreadStatus] = useState({});
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <ul className="space-y-2">
-            {users
+            {sortedUsers
               .filter(user =>
                 user.username?.toLowerCase().includes(searchTerm.toLowerCase())
               )
               .map((user) => (
                 <li
                   key={user.uid}
-                  className="p-3 rounded cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-800 text-sm"
+                  className="p-3 rounded cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-800 text-sm flex items-center justify-between"
                   onClick={() => setSelectedUser(user)}
                 >
                   <div className="flex items-center gap-3">
@@ -290,7 +352,8 @@ const [unreadStatus, setUnreadStatus] = useState({});
                       <span className="font-medium dark:text-white flex items-center gap-2">
                         {user.username}
                         {unreadStatus[user.uid] && (
-                          <span className="w-2 h-2 rounded-full bg-red-500 inline-block animate-pulse"></span>
+                          <span className="w-3 h-3 rounded-full bg-green-500 inline-block animate-pulse" title="Unread message">
+                          </span>
                         )}
                       </span>
                       <span className="text-xs text-gray-500 dark:text-gray-400">{getUserStatus(user.lastSeen)}</span>
@@ -301,7 +364,7 @@ const [unreadStatus, setUnreadStatus] = useState({});
           </ul>
         </aside>
 
-        {/* ✅ Main Chat with scroll & height fix */}
+        {/* Main Chat */}
         <main className="flex-1 flex flex-col overflow-hidden">
           <header className="bg-gray-200 dark:bg-gray-800 px-3 py-4 border-b flex items-center gap-4">
             {selectedUser && (
@@ -352,38 +415,48 @@ const [unreadStatus, setUnreadStatus] = useState({});
                           : 'bg-gradient-to-r from-orange-400 to-pink-900 text-white'
                       }`}
                     >
-                      <div className="font-semibold text-xs mb-1">{msg.username}</div>
+                      <div className="font-semibold text-xs mb-1 flex items-center gap-1">
+                        {msg.username}
+                        {/* Blue tick if message sent by current user and read by recipient */}
+                        {msg.sender === currentUser?.uid && msg.readBy?.includes(selectedUser?.uid) && (
+                          <FontAwesomeIcon
+                            icon={faCheckDouble}
+                            className="text-blue-500"
+                            title="Read"
+                          />
+                        )}
+                      </div>
+
                       {msg.deleted ? (
                         <div className="italic text-gray-900 dark:text-gray-300">This message was deleted</div>
                       ) : (
-                        <div className="w-65">
-                          {renderMessageText(msg.text)}
-                          {msg.shared && (
-                            <>
-                              <div className="bg-gray-200 dark:bg-gray-700 h-60 w-full rounded-2xl">
-                                <img
-                                  src={msg.shared.posterUrl}
-                                  alt=""
-                                  className="w-full h-full object-cover rounded-2xl"
-                                />
-                              </div>
-                              <button
-                                onClick={() =>
-                                  navigate(`/${msg.shared.type}/${msg.shared.shareId}`)
-                                }
-                                className="mt-2 text-xs bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
-                              >
-                                Watch Now
-                              </button>
-                            </>
-                          )}
-                        </div>
+                        <div className="w-65">{renderMessageText(msg.text)}</div>
                       )}
+
+                      {msg.shared && (
+                        <>
+                          <div className="bg-gray-200 dark:bg-gray-700 h-60 w-full rounded-2xl mt-2">
+                            <img
+                              src={msg.shared.posterUrl}
+                              alt=""
+                              className="w-full h-full object-cover rounded-2xl"
+                            />
+                          </div>
+                          <button
+                            onClick={() => navigate(`/${msg.shared.type}/${msg.shared.shareId}`)}
+                            className="mt-2 text-xs bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
+                          >
+                            Watch Now
+                          </button>
+                        </>
+                      )}
+
                       {msg.timestamp && (
                         <div className="text-[10px] mt-1 opacity-70">
                           {formatDistanceToNow(new Date(msg.timestamp.seconds * 1000), { addSuffix: true })}
                         </div>
                       )}
+
                       {msg.sender === currentUser?.uid && !msg.deleted && (
                         <button
                           className={`absolute top-1 right-1 px-2 py-1 text-xs bg-red-100 text-red-700 rounded shadow-sm transition-opacity ${
@@ -426,9 +499,9 @@ const [unreadStatus, setUnreadStatus] = useState({});
         </main>
       </div>
 
-      {toast && (
+      {localToast && (
         <div className="fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-lg">
-          {toast}
+          {localToast}
         </div>
       )}
     </div>

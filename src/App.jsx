@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Routes, Route, useLocation } from "react-router-dom";  // <-- import useLocation
+import { Routes, Route, useLocation } from "react-router-dom"; 
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from 'react-hot-toast';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -52,6 +53,7 @@ const App = () => {
       {location.pathname !== '/chat' && <Navbar user={user} />}
 
       <ToastContainer position="top-center" autoClose={2000} />
+      <Toaster position="top-right" reverseOrder={false} />
 
       <Routes>
         <Route index element={<Home />} />

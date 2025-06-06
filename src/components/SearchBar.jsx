@@ -24,7 +24,8 @@ function SearchBar() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query]);
+    // eslint-disable-next-line
+  }, [query, filter]);
 
   // Close dropdown on outside click
   useEffect(() => {

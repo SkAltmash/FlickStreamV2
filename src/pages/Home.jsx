@@ -8,19 +8,19 @@ const Home = () => {
       <div className="p-4 bg-gray-50 dark:bg-black transition-colors duration-300">
         <MediaSection
           title="Now Playing Movies"
-          fetchUrl="https://api.themoviedb.org/3/movie/now_playing"
+       fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=tv/on_the_air"
         />
         <MediaSection
           title="Popular Web Shows"
-          fetchUrl="https://api.themoviedb.org/3/tv/popular"
+          fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=tv/popular"
         />
         <MediaSection
           title="Top Rated Movies"
-          fetchUrl="https://api.themoviedb.org/3/movie/top_rated"
+          fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=movie/top_rated"
         />
         <MediaSection
           title="Currently Airing Shows"
-          fetchUrl="https://api.themoviedb.org/3/tv/on_the_air"
+      fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=tv/on_the_air"
         />
       </div>
     </>

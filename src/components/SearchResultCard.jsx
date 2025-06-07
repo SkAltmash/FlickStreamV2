@@ -22,7 +22,7 @@ const SearchResultCard = ({ item }) => {
 
   return (
     <div
-      className="relative w-36 h-[320px] rounded overflow-hidden shadow-lg grow-0 shrink-0 basis-auto hover:scale-105 transition duration-300 cursor-pointer bg-white dark:bg-[#1e1e1e] p-1"
+      className="relative w-36 md:w-46 h-[320px] rounded overflow-hidden shadow-lg grow-0 shrink-0 basis-auto hover:scale-105 transition duration-300 cursor-pointer bg-white dark:bg-[#1e1e1e] p-1"
       onClick={handleClick}
     >
       {imagePath ? (
@@ -31,7 +31,7 @@ const SearchResultCard = ({ item }) => {
           src={`${imageBaseUrl}${imagePath}`}
           alt={item.title || item.name}
           effect="blur"
-          className="w-full h-full object-cover"
+          className="w-full h-70 object-cover rounded "
         />
            </div>
       ) : (

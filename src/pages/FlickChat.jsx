@@ -14,7 +14,7 @@ import {
   limit,
 } from 'firebase/firestore';
 import toast from 'react-hot-toast';
-
+import Navbar from '../components/Navbar';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { formatDistanceToNow } from 'date-fns';
@@ -299,30 +299,11 @@ const FlickChat = () => {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden dark:bg-gray-red-900">
-      <nav className="flex justify-between items-center text-white px-6 py-3 shadow bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
-        <h1 className="text-xl font-semibold">FlickChat</h1>
-        <div className="flex items-center space-x-3">
-          {currentUser ? (
-            <>
-              <img
-                src={currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y'}
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <span className="text-sm font-medium">
-                {currentUser.displayName || 'User'}
-              </span>
-            </>
-          ) : (
-            <span className="text-sm italic">Guest</span>
-          )}
-        </div>
-      </nav>
-
+     <Navbar></Navbar>
       <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
         <aside className={`md:w-1/3 w-full h-full max-h-screen ${selectedUser ? 'hidden md:block' : 'block'} bg-gray-100 dark:bg-gray-900 px-3 py-4 border-r overflow-y-auto`}>
-          <h2 className="text-xl font-bold mb-4 dark:text-white">Chats</h2>
+          <h2 className="text-xl font-bold mb-4 dark:text-white"><span className='text-pink-500'>FlickChats</span></h2>
           <input
             type="text"
             className="w-full mb-4 px-3 py-2 border rounded text-sm dark:bg-gray-800 dark:text-white"

@@ -75,6 +75,14 @@ function SearchResults() {
             `/.netlify/functions/tmdb-proxy?endpoint=discover/${type}&with_genres=${genre}&page=${page}`,
             type === 'tv' ? 'series' : 'movie'
           );
+          const res = await fetch(url);
+          const data = await res.json();
+          newResults.push(
+            ...data.results.map((item) => ({
+              ...item,
+              type: type === 'tv' ? 'series' : 'movie',
+            }))
+          );
         }
 
         setResults((prev) => [...prev, ...newResults]);

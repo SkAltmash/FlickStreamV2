@@ -300,6 +300,7 @@ const FlickChat = () => {
   return (
     <div className="flex flex-col h-screen overflow-hidden dark:bg-gray-red-900">
      <Navbar></Navbar>
+     
       <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
         <aside className={`md:w-1/3 w-full h-full max-h-screen ${selectedUser ? 'hidden md:block' : 'block'} bg-gray-100 dark:bg-gray-900 px-3 py-4 border-r overflow-y-auto`}>

@@ -29,7 +29,7 @@ const MovieCard = ({ movie }) => {
           src={`${imageBaseUrl}${imagePath}`}
           alt={movie.title || movie.name}
           effect="blur"
-          className="w-full h-[250px] object-cover rounded"
+          className="w-full md:w-46 h-[250px] object-cover rounded"
           onClick={handleClick}
         />
       ) : (

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import UpcomingCard from '../components/UpcomingCard';
 import SkeletonCard from '../components/SkeletonCard';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
-const languageOptions = [
+const languageOptions = [ 
   { label: 'All', value: '' },
   { label: 'English', value: 'en' },
   { label: 'Hindi', value: 'hi' },
@@ -29,12 +30,11 @@ const Upcoming = () => {
       if (append) setLoadMoreLoading(true);
       else setLoading(true);
 
-   const res = await fetch(
-  `/.netlify/functions/tmdb-proxy?endpoint=${endpoint}&page=${currentPage}&sort_by=primary_release_date.asc&primary_release_date.gte=${today}${
-    language ? `&with_original_language=${language}` : ''
-  }`
-);
-
+      const res = await fetch(
+        `/.netlify/functions/tmdb-proxy?endpoint=${endpoint}&page=${currentPage}&sort_by=primary_release_date.asc&primary_release_date.gte=${today}${
+          language ? `&with_original_language=${language}` : ''
+        }`
+      );
 
       const data = await res.json();
 
@@ -63,7 +63,7 @@ const Upcoming = () => {
     <div className="p-6 dark:bg-black dark:text-white min-h-screen">
       <h1 className="text-2xl font-bold mb-4 text-blue-600">Upcoming Releases</h1>
 
-      <div className="flex flex-wrap items-center gap-4 mb-6">
+      <div className="flex flex-wrap gap-3 mb-6 justify-center">
         <div className="flex gap-2">
           <button
             onClick={() => setActiveTab('movie')}
@@ -108,18 +108,18 @@ const Upcoming = () => {
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap gap-4 justify-center">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="flex flex-wrap justify-center gap-3">
             {items.map((item) => (
-<UpcomingCard key={item.id} item={item} />            ))}
+              <UpcomingCard key={item.id} item={item} mediaType={activeTab} />
+            ))}
           </div>
 
           {hasMore && (
-            <div className="flex justify-center mt-6">
+            <div className="mt-6 text-center">
               <button
                 onClick={() => fetchData(true)}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md font-semibold disabled:opacity-60"
                 disabled={loadMoreLoading}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md"
               >
                 {loadMoreLoading ? 'Loading...' : 'Load More'}
               </button>

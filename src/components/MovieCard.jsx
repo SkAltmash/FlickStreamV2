@@ -23,7 +23,7 @@ const MovieCard = ({ movie }) => {
 
   return (
     <div
-      className="relative w-38 h-[320px] md:w-46 rounded overflow-hidden shadow-lg grow-0 shrink-0 basis-auto hover:scale-105 transition duration-300 cursor-pointer bg-white dark:bg-[#1e1e1e] p-1">
+      className="relative w-36 h-[320px] md:w-46 rounded overflow-hidden shadow-lg grow-0 shrink-0 basis-auto hover:scale-105 transition duration-300 cursor-pointer bg-white dark:bg-[#1e1e1e] p-1">
       {imagePath ? (
         <LazyLoadImage
           src={`${imageBaseUrl}${imagePath}`}

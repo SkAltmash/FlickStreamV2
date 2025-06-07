@@ -95,7 +95,36 @@ const ShareModal = ({ isOpen, onClose, movie }) => {
           Share <span className="text-pink-600">{movie.title || movie.name}</span>
         </h2>
 
-        {/* Share via External */}
+      
+
+        {/* Share via FlickChat */}
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+          Share via <span className="text-pink-500">FlickChat</span>
+        </h3>
+
+        <div className="flex gap-4 overflow-y-auto pb-2 flex-wrap justify-center mb-6 h-48">
+     {users
+    .filter((user) => user.uid !== currentUserId)
+    .map((user) => (
+      <button
+        key={user.uid}
+        onClick={() => handleFlickChatShare(user)}
+        className="flex flex-col items-center text-xs text-center hover:opacity-90"
+      >
+        <img
+          src={
+            user.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y'
+          }
+          alt={user.username}
+          className="w-14 h-14 rounded-full border-2 border-pink-500 object-cover"
+        />
+        <span className="mt-1 text-gray-800 dark:text-white truncate w-16">
+          {user.username}
+        </span>
+      </button>
+    ))}
+</div>
+  {/* Share via External */}
         <div className="grid grid-cols-3 gap-4 mb-6 text-sm text-white">
           <a
             href={`https://wa.me/?text=${encodeURIComponent(currentUrl)}`}
@@ -127,34 +156,6 @@ const ShareModal = ({ isOpen, onClose, movie }) => {
             Copy Link
           </button>
         </div>
-
-        {/* Share via FlickChat */}
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-          Share via <span className="text-pink-500">FlickChat</span>
-        </h3>
-
-        <div className="flex gap-4 overflow-x-auto pb-2">
-  {users
-    .filter((user) => user.uid !== currentUserId)
-    .map((user) => (
-      <button
-        key={user.uid}
-        onClick={() => handleFlickChatShare(user)}
-        className="flex flex-col items-center text-xs text-center hover:opacity-90"
-      >
-        <img
-          src={
-            user.photoURL || 'https://www.gravatar.com/avatar/?d=mp&f=y'
-          }
-          alt={user.username}
-          className="w-14 h-14 rounded-full border-2 border-pink-500 object-cover"
-        />
-        <span className="mt-1 text-gray-800 dark:text-white truncate w-16">
-          {user.username}
-        </span>
-      </button>
-    ))}
-</div>
 
       </div>
     </div>

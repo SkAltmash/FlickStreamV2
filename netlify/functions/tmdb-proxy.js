@@ -17,7 +17,7 @@ export async function handler(event) {
     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
     .join('&');
 
-  const url = `${baseUrl}/${endpoint}?api_key=${API_KEY}${query ? '&' + query : ''}`;
+const url = `${baseUrl}/${endpoint}?api_key=${API_KEY}${query ? '&' + query : ''}`;
 
   try {
     const res = await fetch(url);

@@ -42,6 +42,7 @@ const Navbar = () => {
             <NavLink to="/" className={getLinkClass}>Home</NavLink>
             <NavLink to="/movies" className={getLinkClass}>Movies</NavLink>
             <NavLink to="/series" className={getLinkClass}>Series</NavLink>
+            <NavLink to="/upcoming" className={getLinkClass}>Upcoming</NavLink>
             <NavLink to="/about" className={getLinkClass}>About</NavLink>
             <Link to="/chat" className={mobileLinkClass} onClick={toggleMenu}><span className="text-pink-500">FlickChat</span></Link>
               <ThemeToggleButton />
@@ -98,6 +99,8 @@ const Navbar = () => {
              <NavLink to="/" className={mobileLinkClass} onClick={toggleMenu}>Home</NavLink>
             <NavLink to="/movies" className={mobileLinkClass} onClick={toggleMenu}>Movies</NavLink>
             <NavLink to="/series" className={mobileLinkClass} onClick={toggleMenu}>Series</NavLink>
+            <NavLink to="/upcoming" className={mobileLinkClass} onClick={toggleMenu}>Upcoming</NavLink>
+
             <NavLink to="/about" className={mobileLinkClass} onClick={toggleMenu}>About</NavLink>
             {user && (
               <div className="border-t border-gray-300 dark:border-gray-700 pt-4 mt-4 space-y-3">

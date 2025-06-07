@@ -5,24 +5,22 @@ const Home = () => {
   return (
     <>
       <HeroSection />
-      <div className="p-4 bg-gray-50 dark:bg-black transition-colors duration-300">
-        <MediaSection
-          title="Now Playing Movies"
-       fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=tv/on_the_air"
-        />
-        <MediaSection
-          title="Popular Web Shows"
-          fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=tv/popular"
-        />
-        <MediaSection
-          title="Top Rated Movies"
-          fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=movie/top_rated"
-        />
-        <MediaSection
-          title="Currently Airing Shows"
-      fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=tv/on_the_air"
-        />
-      </div>
+    <MediaSection
+  title="Now Playing Movies"
+  fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=movie/now_playing&page=1"
+/>
+<MediaSection
+  title="Popular Web Shows"
+  fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=tv/popular&page=1"
+/>
+<MediaSection
+  title="Top Rated Movies"
+  fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=movie/top_rated&page=1"
+/>
+<MediaSection
+  title="Currently Airing Shows"
+  fetchUrl="/.netlify/functions/tmdb-proxy?endpoint=tv/on_the_air&page=1"
+/>
     </>
   );
 };

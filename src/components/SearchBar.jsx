@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 
 function SearchBar() {
   const [query, setQuery] = useState('');
@@ -44,19 +43,19 @@ function SearchBar() {
       let results = [];
 
       if (filter === 'all' || filter === 'movie') {
-        const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodedTerm}`);
+        const res = await fetch(`/.netlify/functions/tmdb-proxy?endpoint=search/movie&query=${encodedTerm}`);
         const data = await res.json();
         results.push(...data.results.map(item => ({ ...item, type: 'movie' })));
       }
 
       if (filter === 'all' || filter === 'series') {
-        const res = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodedTerm}`);
+const res = await fetch(`/.netlify/functions/tmdb-proxy?endpoint=search/tv&query=${encodedTerm}`);
         const data = await res.json();
         results.push(...data.results.map(item => ({ ...item, type: 'series' })));
       }
 
       if (filter === 'all' || filter === 'cast') {
-        const res = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=${encodedTerm}`);
+const res = await fetch(`/.netlify/functions/tmdb-proxy?endpoint=search/person&query=${encodedTerm}`);
         const data = await res.json();
         results.push(...data.results.map(item => ({ ...item, type: 'cast' })));
       }
@@ -101,7 +100,7 @@ function SearchBar() {
               navigate(`/search?query=${encodeURIComponent(query)}&filter=${newFilter}`, { replace: true });
             }
           }}
-          className="border border-gray-700 px-2 rounded-l-md h-10 outline-0 dark:text-white"
+          className="border border-gray-700 px-2 rounded-l-md h-10 outline-0 dark:text-white dark:bg-gray-800 dark:border-gray-600"
         >
           <option value="all">All</option>
           <option value="movie">Movies</option>

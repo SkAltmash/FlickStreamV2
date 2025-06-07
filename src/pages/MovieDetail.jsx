@@ -52,7 +52,7 @@ const MovieDetail = () => {
 
   return (
     <>
-      <div className="bg-white text-black min-h-screen py-6 flex flex-col items-center mt-4 dark:bg-black dark:text-white animate-fade-in">
+   <div className="bg-white text-black min-h-screen py-6 flex flex-col items-center mt-4 dark:bg-black dark:text-white">
         <div className="relative w-full max-w-[600px] aspect-video rounded-md overflow-hidden shadow-md mb-8">
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/50 pointer-events-none" />
           {trailer ? (
@@ -74,6 +74,8 @@ const MovieDetail = () => {
               No trailer or backdrop available
             </div>
           )}
+         <ShareModal isOpen={showShare} onClose={() => setShowShare(false)} movie={movie} />
+
         </div>
 
         <div className="max-w-5xl mx-auto px-4 animate-slide-up">
@@ -83,7 +85,6 @@ const MovieDetail = () => {
               <p className="text-gray-700 mb-1 dark:text-gray-200">
                 {movie.release_date} • {movie.runtime ? `${movie.runtime} min` : 'N/A'}
               </p>
-
               {movie.vote_average > 0 && (
                 <>
                   <p className="text-yellow-500 font-semibold mb-2">
@@ -99,11 +100,9 @@ const MovieDetail = () => {
                       <FaShare />
                     </button>
                   </div>
-                  <ShareModal isOpen={showShare} onClose={() => setShowShare(false)} movie={movie} />
                 </>
               )}
-
-              <div className="flex flex-wrap gap-2 mb-4">
+                 <div className="flex flex-wrap gap-2 mb-4">
                 {movie.genres?.map((genre) => (
                   <Link
                     to={`/search?genre=${genre.id}&type=movie`}

@@ -422,7 +422,7 @@ const FlickChat = () => {
                       {msg.deleted ? (
                         <div className="italic text-gray-900 dark:text-gray-300">This message was deleted</div>
                       ) : (
-                        <div className="w-65">{renderMessageText(msg.text)}</div>
+                        <div>{renderMessageText(msg.text)}</div>
                       )}
 
                       {msg.shared && (

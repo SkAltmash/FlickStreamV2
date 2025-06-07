@@ -6,7 +6,7 @@ const SearchSkeleton = () => {
       {skeletonArray.map((_, i) => (
         <div
           key={i}
-          className="w-40 sm:w-48 rounded-lg overflow-hidden shadow bg-white dark:bg-black animate-pulse"
+          className="w-38 sm:w-48 rounded-lg overflow-hidden shadow bg-white dark:bg-black animate-pulse"
         >
           {/* Poster */}
           <div className="w-full h-56 bg-gray-300 dark:bg-gray-700 shimmer" />

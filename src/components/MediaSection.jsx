@@ -1,33 +1,37 @@
 import React, { useEffect, useState, useRef } from 'react';
 import MovieCard from './MovieCard';
 
-
 const SCROLL_AMOUNT = 300;
 
 const MediaSection = ({ title, fetchUrl }) => {
   const [items, setItems] = useState([]);
   const scrollRef = useRef(null);
 
-  // State to track if scroll is at start/end
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-const res = await fetch(
-  '/.netlify/functions/tmdb-proxy?endpoint=trending/all/day&language=en-US&page=1'
-);      const data = await res.json();
-      setItems(data.results);
+      try {
+        const res = await fetch(fetchUrl);
+        const data = await res.json();
+        if (data.results) {
+          setItems(data.results);
+        } else {
+          setItems([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch media:', error);
+        setItems([]);
+      }
     };
     fetchData();
   }, [fetchUrl]);
 
-  // Update scroll buttons disabled state
   const updateScrollButtons = () => {
     if (!scrollRef.current) return;
 
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-
     setCanScrollLeft(scrollLeft > 0);
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth);
   };
@@ -35,7 +39,6 @@ const res = await fetch(
   useEffect(() => {
     updateScrollButtons();
 
-    // Add scroll listener to update on user scroll
     const el = scrollRef.current;
     if (el) {
       el.addEventListener('scroll', updateScrollButtons);
@@ -55,36 +58,44 @@ const res = await fetch(
     <div className="mb-5 px-2 relative">
       <h2 className="text-xl font-bold mb-3 text-blue-600">{title}</h2>
 
-      {/* Left button */}
+      {/* Left scroll button */}
       <button
         onClick={scrollLeft}
         disabled={!canScrollLeft}
         className={`absolute top-1/2 left-0 z-10 -translate-y-1/2 p-2 rounded-r-md
           transition-opacity duration-300
-          ${canScrollLeft ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
+          ${
+            canScrollLeft
+              ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }
         `}
         aria-label="Scroll left"
       >
         &#8249;
       </button>
 
-  <div
-  ref={scrollRef}
-  className="flex overflow-x-scroll gap-4 scrollbar-hide scroll-smooth py-2 bg-white text-black dark:bg-black dark:text-white"
->
-  {items.map((item) => (
-    <MovieCard key={item.id} movie={item} />
-  ))}
-</div>
+      {/* Media items container */}
+      <div
+        ref={scrollRef}
+        className="flex overflow-x-scroll gap-4 scrollbar-hide scroll-smooth py-2 bg-white text-black dark:bg-black dark:text-white"
+      >
+        {items.map((item) => (
+          <MovieCard key={item.id} movie={item} />
+        ))}
+      </div>
 
-
-      {/* Right button */}
+      {/* Right scroll button */}
       <button
         onClick={scrollRight}
         disabled={!canScrollRight}
         className={`absolute top-1/2 right-0 z-10 -translate-y-1/2 p-2 rounded-l-md
           transition-opacity duration-300
-          ${canScrollRight ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
+          ${
+            canScrollRight
+              ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }
         `}
         aria-label="Scroll right"
       >

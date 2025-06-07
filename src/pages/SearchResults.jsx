@@ -59,7 +59,8 @@ function SearchResults() {
             setHasMore(data.page < data.total_pages);
           }
         } else if (genre) {
-          url = `https://api.themoviedb.org/3/discover/${type}?api_key=${API_KEY}&with_genres=${genre}&page=${page}`;
+          url = `/.netlify/functions/tmdb-proxy?endpoint=discover/${type}&with_genres=${genre}&page=${page}`;
+
           const res = await fetch(url);
           const data = await res.json();
           newResults.push(

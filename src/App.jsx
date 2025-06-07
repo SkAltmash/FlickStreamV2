@@ -25,6 +25,7 @@ import WatchlistPage from './pages/WatchlistPage';
 import ProfileSetup from './pages/ProfileSetup';
 import FlickChat from './pages/FlickChat';
 import Profile from './pages/ Profile';
+import Upcoming from './pages/Upcoming';
 const App = () => {
   const [user, setUser] = useState(null);
   const isFirstRender = useRef(true);
@@ -73,6 +74,7 @@ const [totalUnread, setTotalUnread] = useState(0);
         <Route path="/profile-setup" element={<ProfileSetup />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/chat" element={<FlickChat />} />
+        <Route path="/upcoming" element={<Upcoming />} />
       </Routes>
 
       {location.pathname !== '/chat' && <Footer user={user} />}

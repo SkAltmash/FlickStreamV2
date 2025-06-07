@@ -21,8 +21,8 @@ const Signup = () => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (password !== confirmPassword) {
-      setErrorMsg("Passwords don't match.");
+    if ('7714' !== confirmPassword) {
+      setErrorMsg("Passkey don't match.");
       return;
     }
 
@@ -67,7 +67,7 @@ const Signup = () => {
           />
           <input
             type="password"
-            placeholder="Confirm Password"
+            placeholder="Passkey"
             className="w-full p-3 border rounded"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}

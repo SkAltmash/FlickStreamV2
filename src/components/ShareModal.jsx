@@ -102,7 +102,7 @@ const ShareModal = ({ isOpen, onClose, movie }) => {
           Share via <span className="text-pink-500">FlickChat</span>
         </h3>
 
-        <div className="flex gap-4 overflow-y-auto pb-2 flex-wrap justify-center mb-6 h-48">
+        <div className="flex gap-4 overflow-y-auto pb-2 flex-wrap mb-6 max-h-48">
      {users
     .filter((user) => user.uid !== currentUserId)
     .map((user) => (

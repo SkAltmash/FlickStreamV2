@@ -36,7 +36,6 @@ function SearchResults() {
 
       try {
         let newResults = [];
-        let url = '';
 
         const fetchAndPush = async (endpoint, typeTag) => {
           const res = await fetch(endpoint);
@@ -75,14 +74,6 @@ function SearchResults() {
             `/.netlify/functions/tmdb-proxy?endpoint=discover/${type}&with_genres=${genre}&page=${page}`,
             type === 'tv' ? 'series' : 'movie'
           );
-          const res = await fetch(url);
-          const data = await res.json();
-          newResults.push(
-            ...data.results.map((item) => ({
-              ...item,
-              type: type === 'tv' ? 'series' : 'movie',
-            }))
-          );
         }
 
         setResults((prev) => [...prev, ...newResults]);
@@ -117,21 +108,25 @@ function SearchResults() {
       )}
 
       {/* No results message */}
-      {results.length === 0 && !loading && <p>No results found.</p>}
+      {results.length === 0 && !loading && (
+        <p className="text-gray-500">No results found.</p>
+      )}
 
-      {/* Result cards */}
-      <div className="flex flex-wrap justify-center gap-3">
-        {results.map((item, idx) => (
-          <SearchResultCard key={`${item.id}-${idx}`} item={item} />
-        ))}
-      </div>
+      {/* Render results */}
+      {results.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {results.map((result, idx) => (
+            <SearchResultCard key={`${result.id}-${idx}`} item={result} />
+          ))}
+        </div>
+      )}
 
-      {/* Load more */}
+      {/* Load more button */}
       {hasMore && !loading && (
-        <div className="mt-6 text-center">
+        <div className="flex justify-center mt-6">
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={() => setPage((prev) => prev + 1)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
             disabled={loadMoreLoading}
           >
             {loadMoreLoading ? 'Loading...' : 'Load More'}

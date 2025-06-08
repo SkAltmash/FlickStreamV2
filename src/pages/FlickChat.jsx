@@ -349,7 +349,7 @@ const FlickChat = () => {
 
         {/* Main Chat */}
         <main className="flex-1 flex flex-col overflow-hidden">
-          <header className="bg-gray-200 dark:bg-gray-800 px-3 py-4 border-b flex items-center gap-4">
+          <header className="bg-gray-200 dark:bg-gray-800 px-3 py-4 border-b flex items-center gap-4 fixed z-10 w-full">
             {selectedUser && (
               <button
                 className="md:hidden text-lg font-bold text-gray-900 dark:text-white"

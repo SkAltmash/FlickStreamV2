@@ -374,7 +374,7 @@ const FlickChat = () => {
           </header>
 
           <div
-            className="flex-1 overflow-y-auto px-3 py-4 space-y-3 bg-white dark:bg-gray-950"
+            className="flex-1 overflow-y-auto px-3 py-4 space-y-3 bg-white dark:bg-gray-950 pt-20"
             style={{ minHeight: 0 }}
           >
             {!selectedUser ? (

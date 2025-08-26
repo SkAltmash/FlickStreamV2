@@ -9,7 +9,7 @@ const Footer = () => {
           <a href="/" className="text-2xl font-bold text-white hover:text-blue-500">
               FlickStream<span className='text-red-600'>V2</span>
           </a>
-          <p className="text-sm mt-1">© {new Date().getFullYear()} MyBrand. All rights reserved.</p>
+          <p className="text-sm mt-1">© {new Date().getFullYear()} FlickStreamV2. All rights reserved.</p>
         </div>
 
         {/* Social Icons */}

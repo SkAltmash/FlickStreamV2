@@ -107,8 +107,7 @@ const Navbar = () => {
               <Link to="/chat" className={mobileLinkClass} onClick={toggleMenu}><span className="text-pink-500">FlickChat</span></Link>
                <Link to="/profile" className={mobileLinkClass} onClick={toggleMenu}>Profile</Link>
                  <Link to="/favorites" className={mobileLinkClass} onClick={toggleMenu}>Favorites</Link>
-                <Link to="/watchlist" className={mobileLinkClass} onClick={toggleMenu}>Watchlist</Link>
-                <Link to="/history" className={mobileLinkClass} onClick={toggleMenu}>History</Link>
+               
               </div>
             )}
 

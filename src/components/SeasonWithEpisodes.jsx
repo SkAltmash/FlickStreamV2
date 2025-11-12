@@ -3,30 +3,33 @@ import React, { useState } from 'react';
 const SeasonWithEpisodes = ({ tvId, season }) => {
   const [showEpisodes, setShowEpisodes] = useState(false);
   const [episodes, setEpisodes] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(5); // show first 10 initially
+  const [visibleCount, setVisibleCount] = useState(5);
   const [loading, setLoading] = useState(false);
 
   const toggleEpisodes = async () => {
-    if (!showEpisodes && episodes.length === 0) {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `https://api.themoviedb.org/3/tv/${tvId}/season/${season.season_number}?api_key=d1becbefc947f6d6af137051548adf7f`
-        );
-        const data = await res.json();
-        setEpisodes(data.episodes || []);
-      } catch (err) {
-        console.error('Failed to fetch episodes', err);
-      } finally {
-        setLoading(false);
+    if (!showEpisodes) {
+      if (episodes.length === 0) {
+        setLoading(true);
+        try {
+          const res = await fetch(
+            `/.netlify/functions/tmdb-proxy?endpoint=tv/${tvId}/season/${season.season_number}`
+          );
+          const data = await res.json();
+          console.log('Fetched season data:', data);
+          setEpisodes(data.episodes || []);
+        } catch (err) {
+          console.error('Failed to fetch episodes', err);
+        } finally {
+          setLoading(false);
+        }
       }
+      setShowEpisodes(true);
+    } else {
+      setShowEpisodes(false);
     }
-    setShowEpisodes(!showEpisodes);
   };
 
-  const loadMoreEpisodes = () => {
-    setVisibleCount((prev) => prev + 5); // load next 10
-  };
+  const loadMoreEpisodes = () => setVisibleCount((prev) => prev + 5);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow mb-6">
@@ -43,8 +46,12 @@ const SeasonWithEpisodes = ({ tvId, season }) => {
         <div className="flex-1">
           <h3 className="text-xl font-semibold text-gray-800 dark:text-white">{season.name}</h3>
           <p className="text-sm text-gray-500 dark:text-gray-300">Air Date: {season.air_date}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-300 mb-2">Episodes: {season.episode_count}</p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">{season.overview || 'No overview available'}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-2">
+            Episodes: {season.episode_count}
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
+            {season.overview || 'No overview available'}
+          </p>
           <button
             onClick={toggleEpisodes}
             className="mt-3 px-4 py-1 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded"
@@ -54,7 +61,6 @@ const SeasonWithEpisodes = ({ tvId, season }) => {
         </div>
       </div>
 
-      {/* Episodes */}
       {showEpisodes && (
         <div className="mt-4">
           {loading ? (
@@ -82,13 +88,14 @@ const SeasonWithEpisodes = ({ tvId, season }) => {
                         {ep.episode_number}. {ep.name}
                       </h4>
                       <p className="text-sm text-gray-500">Runtime: {ep.runtime || 'N/A'} min</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{ep.overview || 'No description available.'}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {ep.overview || 'No description available.'}
+                      </p>
                     </div>
                   </li>
                 ))}
               </ul>
 
-              {/* Show more button */}
               {visibleCount < episodes.length && (
                 <div className="mt-4 text-center">
                   <button
